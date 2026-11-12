@@ -16,7 +16,7 @@ from gpt import GPT, GPTConfig
 from retrieve import load_index
 from step3_bpe import build_vocab, decode, encode
 
-CKPT_PATH = pathlib.Path("checkpoints/quahog_gpt_v4.pt")
+CKPT_PATH = pathlib.Path("checkpoints/quahog_gpt_v5.pt")
 TOKENIZER_PATH = pathlib.Path("data/tokenizer.json")
 PROMPTS = ["Peter", "Stewie", "The Griffins live"]
 NEW_TOKENS = 150
