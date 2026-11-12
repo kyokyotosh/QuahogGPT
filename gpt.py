@@ -112,10 +112,20 @@ class GPT(nn.Module):
         return logits, loss
 
     @torch.no_grad()
-    def generate(self, idx, max_new_tokens):
+    def generate(self, idx, max_new_tokens, temperature=1.0, top_k=None):
+        """Sample tokens one at a time.
+
+        temperature < 1 sharpens the distribution (safer, more repetitive);
+        temperature > 1 flattens it (more random). top_k keeps only the k most
+        likely tokens before sampling, which blocks the long tail of junk tokens.
+        """
         for _ in range(max_new_tokens):
             idx_cond = idx[:, -self.cfg.block_size :]  # only the last block_size tokens are visible
             logits, _ = self(idx_cond)
-            probs = F.softmax(logits[:, -1, :], dim=-1)
+            logits = logits[:, -1, :] / temperature
+            if top_k is not None:
+                kth = torch.topk(logits, top_k).values[:, [-1]]  # smallest logit still allowed
+                logits = logits.masked_fill(logits < kth, float("-inf"))
+            probs = F.softmax(logits, dim=-1)
             idx = torch.cat([idx, torch.multinomial(probs, num_samples=1)], dim=1)
         return idx

@@ -1,0 +1,42 @@
+"""Sample from the saved best checkpoint under different decoding settings.
+
+Training already finished, so this only changes how tokens are picked:
+no retraining, same weights. Compare temperature and top-k side by side.
+"""
+
+import json
+import pathlib
+
+import torch
+
+from gpt import GPT, GPTConfig
+from step3_bpe import build_vocab, decode, encode
+
+CKPT_PATH = pathlib.Path("checkpoints/quahog_gpt.pt")
+TOKENIZER_PATH = pathlib.Path("data/tokenizer.json")
+PROMPTS = ["Peter", "Stewie", "The Griffins live"]
+SETTINGS = [
+    (1.0, None),  # what step 4 printed
+    (0.8, 40),
+    (0.6, 40),
+    (0.5, 20),
+]
+NEW_TOKENS = 150
+
+merges = {(a, b): idx for a, b, idx in json.loads(TOKENIZER_PATH.read_text(encoding="utf-8"))}
+vocab = build_vocab(merges)
+
+ckpt = torch.load(CKPT_PATH)
+cfg = GPTConfig(**ckpt["config"])
+model = GPT(cfg)
+model.load_state_dict(ckpt["model"])
+model.eval()
+
+torch.manual_seed(0)  # same random draws for each setting, so differences come from decoding
+for temperature, top_k in SETTINGS:
+    print(f"\n==================== temperature={temperature}  top_k={top_k} ====================")
+    for prompt in PROMPTS:
+        ids = torch.tensor([encode(prompt, merges)], dtype=torch.long)
+        out = model.generate(ids, NEW_TOKENS, temperature=temperature, top_k=top_k)
+        print(f"\n--- {prompt!r} ---")
+        print(decode(out[0].tolist(), vocab))

@@ -13,6 +13,7 @@ title) and cleans them. Wikitext is the wiki's markup language: [[links]],
 
 import json
 import pathlib
+import random
 import re
 import sys
 import time
@@ -168,6 +169,7 @@ def build():
         body = clean(wikitext)
         if len(body) >= 200:  # skip stubs and redirects
             docs.append(f"{title}\n{body}")
+    random.Random(0).shuffle(docs)  # mix categories so any contiguous train/val split is representative
     corpus = "\n\n".join(docs)
     CORPUS_PATH.write_text(corpus, encoding="utf-8")
     print(f"kept {len(docs)}/{len(pages)} unique pages, {len(corpus):,} characters -> {CORPUS_PATH}")

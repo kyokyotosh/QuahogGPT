@@ -33,7 +33,7 @@ cfg = GPTConfig(vocab_size=len(vocab), block_size=128, n_embd=128, n_head=4, n_l
 batch_size = 32
 lr = 3e-3
 weight_decay = 0.1
-max_iters = 2000
+max_iters = 6000
 eval_interval = 250
 eval_iters = 40
 
