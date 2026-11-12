@@ -5,6 +5,7 @@ subwords. The model keeps the best checkpoint by validation loss, so overfitting
 can't ruin the saved model.
 """
 
+import argparse
 import json
 import math
 import pathlib
@@ -16,9 +17,16 @@ from step3_bpe import build_vocab, decode, encode
 
 torch.manual_seed(1337)
 
+parser = argparse.ArgumentParser()
+parser.add_argument("--ckpt", default="checkpoints/quahog_gpt_v5.pt")
+parser.add_argument("--n-embd", type=int, default=192)
+parser.add_argument("--n-head", type=int, default=6)
+parser.add_argument("--n-layer", type=int, default=6)
+parser.add_argument("--max-iters", type=int, default=12000)
+args = parser.parse_args()
+CKPT_PATH = pathlib.Path(args.ckpt)
 CORPUS_PATH = pathlib.Path("data/corpus.txt")
 TOKENIZER_PATH = pathlib.Path("data/tokenizer.json")
-CKPT_PATH = pathlib.Path("checkpoints/quahog_gpt_v5.pt")
 
 device = "mps" if torch.backends.mps.is_available() else "cpu"
 
@@ -33,11 +41,11 @@ print(f"{len(data):,} tokens  (train {len(train_data):,}, val {len(val_data):,})
 
 # Hyperparameters. Corpus is ~1.7M tokens. v1 (128-wide, 4-layer, 1.07M params) reached
 # val 2.97 at 6000 steps and was still improving; this model is ~2.6M params, trained on CPU.
-cfg = GPTConfig(vocab_size=len(vocab), block_size=128, n_embd=192, n_head=6, n_layer=6, dropout=0.2)
+cfg = GPTConfig(vocab_size=len(vocab), block_size=128, n_embd=args.n_embd, n_head=args.n_head, n_layer=args.n_layer, dropout=0.2)
 batch_size = 32
 lr = 3e-3  # peak LR; cosine decays to 10% of peak at max_iters
 weight_decay = 0.1
-max_iters = 12000
+max_iters = args.max_iters
 eval_interval = 250
 eval_iters = 40
 
