@@ -38,12 +38,16 @@ model.eval()
 
 
 def retrieve_ids(index, query_ids):
-    """Token ids of the best passage for the query text, or [] if nothing matches."""
-    hits = index.search(decode(query_ids, vocab), k=1)
-    if not hits:
-        return [], None
-    title, passage = hits[0]
-    return encode(f"{title}\n{passage}\n\n", merges)[:CONTEXT_TOKENS], hits[0]
+    """Token ids of the best-ranked passage that fits CONTEXT_TOKENS whole, or [] if none does.
+
+    Passages are never cut: a cut passage ends mid-sentence, which hurts the model.
+    See HANDOFF.md (retrieval) for the measurements.
+    """
+    for hit in index.search(decode(query_ids, vocab), k=10):
+        ids = encode(f"{hit[0]}\n{hit[1]}\n\n", merges)
+        if len(ids) <= CONTEXT_TOKENS:
+            return ids, hit
+    return [], None
 
 
 @torch.no_grad()

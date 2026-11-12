@@ -11,8 +11,13 @@ Pass --old-corpus when a checkpoint was trained on an older corpus.
 
 Reports, per checkpoint:
   full-page loss: first 128 tokens of each page, no retrieval
-  body-56 loss:   first 56 tokens of the body, given the title (no retrieval)
-  retrieval gain: body-56 loss minus loss with the best-matching passage prepended
+  body loss:      first --body-tokens tokens of the body, given the title (no retrieval)
+  retrieval gain: body loss minus loss with retrieved passages prepended
+
+Retrieval options (defaults match rag_sample.py):
+  --passages N        top-N passages from other pages, joined in rank order
+  --context-tokens N  cap on the retrieved text, in tokens (window is 128 minus body)
+
 The first checkpoint is the baseline for paired differences (positive = better).
 """
 
@@ -33,8 +38,6 @@ TOKENIZER_PATH = pathlib.Path("data/tokenizer.json")
 CORPUS_PATH = pathlib.Path("data/corpus.txt")
 MARGIN = 0.92
 BLOCK = 128
-BODY = 56
-CONTEXT_TOKENS = 64
 
 
 def load_model(path, device):
@@ -80,7 +83,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("checkpoints", nargs="+")
     parser.add_argument("--old-corpus", type=pathlib.Path)
+    parser.add_argument("--body-tokens", type=int, default=56)
+    parser.add_argument("--context-tokens", type=int, default=64)
+    parser.add_argument("--passages", type=int, default=1)
     args = parser.parse_args()
+    print(
+        f"body={args.body_tokens} context={args.context_tokens} passages={args.passages}"
+    )
 
     device = "mps" if torch.backends.mps.is_available() else "cpu"
     merges = {(a, b): idx for a, b, idx in json.loads(TOKENIZER_PATH.read_text(encoding="utf-8"))}
@@ -94,18 +103,18 @@ def main():
     names = [pathlib.Path(c).stem for c in args.checkpoints]
     models = {name: load_model(c, device) for name, c in zip(names, args.checkpoints)}
     rows = {name: {"full": [], "plain": [], "ground": []} for name in names}
-    # Per-page paired arrays, aligned across checkpoints.
     for title, body in keep:
         full = encode(f"{title}\n{body}", merges)[:BLOCK]
-        body_ids = encode(body, merges)[:BODY]
+        body_ids = encode(body, merges)[: args.body_tokens]
         head = encode(f"{title}\n", merges)
         ctx_ids = None
-        if len(body_ids) == BODY:
-            hits = [h for h in index.search(title, k=10) if h[0] != title]
-            budget = min(CONTEXT_TOKENS, BLOCK - BODY - len(head))
+        if len(body_ids) == args.body_tokens:
+            hits = [h for h in index.search(title, k=10 + args.passages) if h[0] != title]
+            hits = hits[: args.passages]
+            budget = min(args.context_tokens, BLOCK - args.body_tokens - len(head))
             if hits and budget > 0:
-                ht, hp = hits[0]
-                ctx_ids = encode(f"{ht}\n{hp}\n\n", merges)[:budget]
+                ctx_text = "".join(f"{ht}\n{hp}\n\n" for ht, hp in hits)
+                ctx_ids = encode(ctx_text, merges)[:budget]
         for name, model in models.items():
             if len(full) >= 8:
                 rows[name]["full"].append(nll(model, full, 1, device))
@@ -119,7 +128,7 @@ def main():
         mu, se = mean_se(rows[name]["full"])
         print(f"{name} full-page loss: {mu:.4f} +/- {se:.4f} (n={len(rows[name]['full'])})")
         mu, se = mean_se(rows[name]["plain"])
-        print(f"{name} body-56 loss:   {mu:.4f} +/- {se:.4f} (n={len(rows[name]['plain'])})")
+        print(f"{name} body loss:      {mu:.4f} +/- {se:.4f} (n={len(rows[name]['plain'])})")
         gain, gse = mean_se(
             [p - g for p, g in zip(rows[name]["plain"], rows[name]["ground"])]
         )

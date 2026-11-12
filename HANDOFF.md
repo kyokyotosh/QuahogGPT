@@ -65,7 +65,12 @@ python step3_bpe.py
 
 1. **Same-split comparison (done).** Result above. Script: `eval_same_split.py` (committed). Run it with `--old-corpus` when a checkpoint was trained on an older corpus.
 2. **Regularization (done, v6).** Dropout 0.3 and weight decay 0.2 made val worse (2.42 vs 2.37), so v5 stays. The overfitting gap is not fixed by more regularization of this kind.
-3. **Retrieval.** `rag_sample.py` retrieves one passage every 16 tokens, with a 64-token passage budget (the window is 128 tokens). On 434 pages unseen by v5 and v6, the gain is clearly positive: v5 0.033 ± 0.006, v6 0.038 ± 0.006 (s.e.). An earlier claim that it was not significant came from a 125-page set and was underpowered. Ideas: a bigger passage budget or block size (needs retraining), reranking.
+3. **Retrieval (updated).** Tests on v5, body 24 tokens, query = title. Scripts are in `/tmp` and not committed.
+   - The old `rag_sample.py` cut the top-1 passage to 64 tokens, mid-sentence. On the 394 pages with a whole passage that fits, the truncated top-1 gains +0.090 and the first-fitting whole passage gains +0.210. Paired difference +0.120 ± 0.011. Applied in `rag_sample.py` (`retrieve_ids`).
+   - With whole passages, budgets 64, 96, and the window cap do not differ. Paired 96 − 64 = −0.005 ± 0.004 (n=214). Keep 64.
+   - Ablation on rank-1 (n=404): cutting to 32 tokens gives −0.068; cutting to 64 gives +0.085 overall (−0.055 on passages over 64 tokens, +0.220 on short ones); cutting to 96 gives +0.170. So the gain depends on where the cut lands. The earlier 96-token gain was an artifact of truncation.
+   - Duplicated text is not the main driver: only 4.5% of pages share an 8-word run with the retrieved text.
+   - Open: sample quality of the whole-passage version has only been checked by eye on 3 prompts. The gain is measured on the eval proxy (title query, 24-token body), not on sampled text.
 4. **Fine-tune (LoRA).** Not started. There is no pretrained base model.
 
 ## Known issues
