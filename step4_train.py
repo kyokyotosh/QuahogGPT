@@ -19,6 +19,8 @@ CORPUS_PATH = pathlib.Path("data/corpus.txt")
 TOKENIZER_PATH = pathlib.Path("data/tokenizer.json")
 CKPT_PATH = pathlib.Path("checkpoints/quahog_gpt_v2.pt")
 
+device = "mps" if torch.backends.mps.is_available() else "cpu"
+
 # Load tokenizer and corpus.
 merges = {(a, b): idx for a, b, idx in json.loads(TOKENIZER_PATH.read_text(encoding="utf-8"))}
 vocab = build_vocab(merges)
@@ -43,7 +45,7 @@ def get_batch(source):
     starts = torch.randint(len(source) - cfg.block_size, (batch_size,))
     x = torch.stack([source[i : i + cfg.block_size] for i in starts])
     y = torch.stack([source[i + 1 : i + cfg.block_size + 1] for i in starts])
-    return x, y
+    return x.to(device), y.to(device)
 
 
 @torch.no_grad()
@@ -61,7 +63,8 @@ def estimate_loss(model):
     return out
 
 
-model = GPT(cfg)
+model = GPT(cfg).to(device)
+print(f"device: {device}")
 print(f"params: {sum(p.numel() for p in model.parameters()):,}")
 
 optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
@@ -86,12 +89,12 @@ for it in range(max_iters + 1):
     optimizer.step()
 
 # Reload the best checkpoint (by val loss) and sample from it.
-ckpt = torch.load(CKPT_PATH)
+ckpt = torch.load(CKPT_PATH, map_location=device)
 model.load_state_dict(ckpt["model"])
 model.eval()
 print(f"\nbest val loss: {best_val:.4f}")
 for prompt in ["Peter", "Stewie", "The Griffins live"]:
-    ids = torch.tensor([encode(prompt, merges)], dtype=torch.long)
+    ids = torch.tensor([encode(prompt, merges)], dtype=torch.long, device=device)
     out = model.generate(ids, 150)
     print(f"\n--- prompt: {prompt!r} ---")
     print(decode(out[0].tolist(), vocab))
