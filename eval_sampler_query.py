@@ -1,24 +1,25 @@
-"""Paired check of retrieval variants with the sampler's own query.
+"""Sampler-faithful check of retrieval variants, for one or more checkpoints.
 
-rag_sample.py retrieves with the last 64 tokens of generated text, decoded to
-a string, and predicts the next SEGMENT (16) tokens. This script mirrors that on
-pages the checkpoint never trained on:
+For pages that no checkpoint trained on (see eval_same_split.py for the split):
 
-  query:   first PREFIX (64) tokens of "title\\nbody", decoded to text
-  target:  the next TARGET (16) tokens
-  window:  [context] + prefix + target; the context is capped at CTX tokens so
-           the input (window minus one token) fits BLOCK (128)
+  query:   the first CONTEXT (64) tokens of "title\\nbody", decoded to text. This is
+           what generate_grounded() retrieves with at the start of a segment.
+  target:  the next SEGMENT (16) tokens.
+  window:  for each target token, the retrieved context followed by the most
+           recent tokens that fit in BLOCK (128), exactly as generate_grounded()
+           builds it. Each target token is scored separately.
 
-Variants, all with the same prefix and target:
-  plain:      no passage
-  truncated:  top-1 passage cut to CTX tokens (the behavior before the fix)
-  first-fit:  first passage in rank order that fits CTX whole (the current behavior)
+Variants (all share the same query and target):
+  none:       no retrieval
+  truncated:  top-1 passage cut to CONTEXT tokens (the behavior before the fix)
+  first-fit:  first passage in rank order that fits CONTEXT whole; no retrieval if
+              none fits (the current rag_sample.py)
 
-Pages whose query has no hit other than the page itself are skipped. The page's
-own title is excluded from hits, as in eval_same_split.py.
+Constants match rag_sample.py. Keep them in sync if that file changes.
 
 Usage (from the repo root):
-    python eval_sampler_query.py checkpoints/quahog_gpt_v5.pt
+    python eval_sampler_query.py checkpoints/quahog_gpt_v5.pt checkpoints/quahog_gpt_v7_wide.pt
+The first checkpoint is the baseline for paired differences between checkpoints.
 """
 
 import argparse
@@ -26,6 +27,7 @@ import json
 import pathlib
 
 import torch
+import torch.nn.functional as F
 
 import eval_same_split as ev
 from retrieve import load_index
@@ -34,15 +36,27 @@ from step3_scrape import load_docs
 
 TOKENIZER_PATH = pathlib.Path("data/tokenizer.json")
 CORPUS_PATH = pathlib.Path("data/corpus.txt")
-PREFIX = 64
-TARGET = 16
 BLOCK = 128
-CTX = BLOCK - PREFIX - TARGET + 1  # input = ctx + PREFIX + TARGET - 1 <= BLOCK
+CONTEXT = 64  # rag_sample.CONTEXT_TOKENS
+SEGMENT = 16  # rag_sample.SEGMENT
+VARIANTS = ["none", "truncated", "first-fit"]
+
+
+def target_losses(model, ctx, prefix, target, device):
+    """Mean loss over the target tokens, each scored with the sampler's window."""
+    total = 0.0
+    for j, tok in enumerate(target):
+        before = prefix + target[:j]
+        window = ctx + before[-(BLOCK - len(ctx)) :]
+        with torch.no_grad():
+            logits, _ = model(torch.tensor([window], dtype=torch.long, device=device))
+        total += -F.log_softmax(logits[0, -1], dim=-1)[tok].item()
+    return total / len(target)
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("checkpoint")
+    parser.add_argument("checkpoints", nargs="+")
     args = parser.parse_args()
 
     device = "mps" if torch.backends.mps.is_available() else "cpu"
@@ -52,45 +66,47 @@ def main():
     docs, _ = load_docs()
     keep = ev.unseen(docs, corpus, None)
     index = load_index()
-    model = ev.load_model(args.checkpoint, device)
+    names = [pathlib.Path(c).stem for c in args.checkpoints]
+    models = {n: ev.load_model(c, device) for n, c in zip(names, args.checkpoints)}
 
-    rows = []  # (plain, truncated gain, first-fit gain or None)
+    scores = {n: {v: [] for v in VARIANTS} for n in names}
     for title, body in keep:
         full = encode(f"{title}\n{body}", merges)
-        if len(full) < PREFIX + TARGET:
+        if len(full) < CONTEXT + SEGMENT:
             continue
-        prefix = full[:PREFIX]
-        target = full[PREFIX : PREFIX + TARGET]
-        query = decode(prefix, vocab)
-        hits = [h for h in index.search(query, k=12) if h[0] != title]
-        if not hits:
-            continue
+        prefix = full[:CONTEXT]
+        target = full[CONTEXT : CONTEXT + SEGMENT]
+        hits = [h for h in index.search(decode(prefix, vocab), k=12) if h[0] != title]
+        cands = [encode(f"{ht}\n{hp}\n\n", merges) for ht, hp in hits]
+        ctx = {
+            "none": [],
+            "truncated": cands[0][:CONTEXT] if cands else [],
+            "first-fit": next((c for c in cands if len(c) <= CONTEXT), []),
+        }
+        for n, model in models.items():
+            for v in VARIANTS:
+                scores[n][v].append(target_losses(model, ctx[v], prefix, target, device))
 
-        plain = ev.nll(model, prefix + target, PREFIX, device)
-        top = encode(f"{hits[0][0]}\n{hits[0][1]}\n\n", merges)[:CTX]
-        trunc = plain - ev.nll(model, top + prefix + target, len(top) + PREFIX, device)
-
-        fit = None
-        for ht, hp in hits:
-            ids = encode(f"{ht}\n{hp}\n\n", merges)
-            if len(ids) <= CTX:
-                fit = ids
-                break
-        first = None
-        if fit is not None:
-            first = plain - ev.nll(model, fit + prefix + target, len(fit) + PREFIX, device)
-        rows.append((plain, trunc, first))
-
-    def paired_stats(xs):
-        mu, se = ev.mean_se(xs)
-        return f"{mu:+.4f} +/- {se:.4f} (n={len(xs)})"
-
-    both = [(t, f) for _, t, f in rows if f is not None]
-    print(f"pages: {len(rows)} scored; plain loss mean {ev.mean_se([p for p, _, _ in rows])[0]:.4f}")
-    print(f"truncated top-1 gain (all scored):   {paired_stats([t for _, t, _ in rows])}")
-    print(f"first-fit gain (pages with a fit):   {paired_stats([f for _, f in both])}")
-    print(f"truncated top-1 gain (same pages):   {paired_stats([t for t, _ in both])}")
-    print(f"paired first-fit - truncated:        {paired_stats([f - t for t, f in both])}")
+    print(f"pages scored: {len(scores[names[0]]['none'])}")
+    print(f"{'checkpoint':<22}{'variant':<12}{'loss':>22}{'gain vs none':>24}")
+    for n in names:
+        base = scores[n]["none"]
+        for v in VARIANTS:
+            mu, se = ev.mean_se(scores[n][v])
+            if v == "none":
+                gain = "-"
+            else:
+                g, gse = ev.mean_se([a - b for a, b in zip(base, scores[n][v])])
+                gain = f"{g:+.4f} +/- {gse:.4f}"
+            print(f"{n:<22}{v:<12}{mu:>10.4f} +/- {se:.4f}{gain:>24}")
+    if len(names) > 1:
+        ref = names[0]
+        print(f"\npaired first-fit, checkpoint minus {ref} (negative = better):")
+        for n in names[1:]:
+            d, dse = ev.mean_se(
+                [a - b for a, b in zip(scores[n]["first-fit"], scores[ref]["first-fit"])]
+            )
+            print(f"  {n}: {d:+.4f} +/- {dse:.4f}")
 
 
 if __name__ == "__main__":
