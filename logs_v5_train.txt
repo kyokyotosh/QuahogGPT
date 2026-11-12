@@ -1,0 +1,82 @@
+/Users/matheuscolombo/Desktop/QuahogGPT/.venv/lib/python3.15/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /Users/runner/work/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+2,027,277 tokens  (train 1,824,549, val 202,728)
+device: mps
+params: 3,084,928
+step     0  train 7.0962  val 7.0962  (saved)
+step   250  train 4.0435  val 4.0461  (saved)
+step   500  train 3.6869  val 3.7077  (saved)
+step   750  train 3.3832  val 3.4537  (saved)
+step  1000  train 3.1460  val 3.2708  (saved)
+step  1250  train 3.0337  val 3.0859  (saved)
+step  1500  train 2.9500  val 3.0262  (saved)
+step  1750  train 2.8552  val 2.9556  (saved)
+step  2000  train 2.7786  val 2.8896  (saved)
+step  2250  train 2.7714  val 2.8477  (saved)
+step  2500  train 2.7245  val 2.8546
+step  2750  train 2.6735  val 2.8032  (saved)
+step  3000  train 2.6201  val 2.8085
+step  3250  train 2.6136  val 2.8053
+step  3500  train 2.5613  val 2.7275  (saved)
+step  3750  train 2.5656  val 2.7158  (saved)
+step  4000  train 2.5155  val 2.7240
+step  4250  train 2.4828  val 2.6484  (saved)
+step  4500  train 2.5101  val 2.6591
+step  4750  train 2.4356  val 2.6216  (saved)
+step  5000  train 2.4467  val 2.6244
+step  5250  train 2.4367  val 2.6244
+step  5500  train 2.4074  val 2.5787  (saved)
+step  5750  train 2.4187  val 2.5461  (saved)
+step  6000  train 2.3342  val 2.6064
+step  6250  train 2.3520  val 2.5711
+step  6500  train 2.3227  val 2.5253  (saved)
+step  6750  train 2.3120  val 2.5226  (saved)
+step  7000  train 2.3044  val 2.5434
+step  7250  train 2.2810  val 2.5021  (saved)
+step  7500  train 2.2605  val 2.4954  (saved)
+step  7750  train 2.2427  val 2.4794  (saved)
+step  8000  train 2.2300  val 2.4890
+step  8250  train 2.2061  val 2.4843
+step  8500  train 2.1974  val 2.4820
+step  8750  train 2.1776  val 2.4612  (saved)
+step  9000  train 2.1438  val 2.4444  (saved)
+step  9250  train 2.1435  val 2.4516
+step  9500  train 2.1165  val 2.4120  (saved)
+step  9750  train 2.1362  val 2.4340
+step 10000  train 2.1241  val 2.4083  (saved)
+step 10250  train 2.0913  val 2.4352
+step 10500  train 2.0844  val 2.3838  (saved)
+step 10750  train 2.1026  val 2.4011
+step 11000  train 2.0595  val 2.3755  (saved)
+step 11250  train 2.0302  val 2.3675  (saved)
+step 11500  train 2.0611  val 2.4064
+step 11750  train 2.0571  val 2.3848
+step 12000  train 2.0459  val 2.3658  (saved)
+
+best val loss: 2.3658
+
+--- prompt: 'Peter' ---
+Peter points out that it was also the one Teslonto the living pipeople in "Patriot Games" with training a high-style sixty-ten all the laws.
+
+Alysuncopter
+Alyssumingly Christopher Colorch is an effect from Stewart II: The Flying Source of Cruise, Elijah Oz, and childhood of Alysses Beach and on the climaxx DVDs.
+
+In "Partial Terms of
+
+--- prompt: 'Stewie' ---
+Stewie "Me" when Stewie claims he spells Bitch-Glenn Quagmire land in front of the Mexican has several other decols with his wife. Besides the Democratulations are still not beating Brian.
+
+Chris traveled to Captain America: Entertainment Television Networks in "Death Is a Bitch" and "Meg Imperfied me" in "Burning Down the Bottom of the Bayit". Sandra becomes many of the first mascot
+
+--- prompt: 'The Griffins live' ---
+The Griffins live at them at Peter Griffin's horse, can only give dig as a person who look at the age.
+
+Season 10
+In Back to the Pilot
+Stewie has times Stewie to give up a wide store.
+
+Season 5
+In Cotegas
+Peter and Lois are most have a new dog, while watching a porn pornography slipping with a drug date, plus even the Peter in "No Giggity, No Doubt".
+
+When Peter is carried out of provolved in "

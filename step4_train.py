@@ -18,7 +18,7 @@ torch.manual_seed(1337)
 
 CORPUS_PATH = pathlib.Path("data/corpus.txt")
 TOKENIZER_PATH = pathlib.Path("data/tokenizer.json")
-CKPT_PATH = pathlib.Path("checkpoints/quahog_gpt_v4.pt")
+CKPT_PATH = pathlib.Path("checkpoints/quahog_gpt_v5.pt")
 
 device = "mps" if torch.backends.mps.is_available() else "cpu"
 
