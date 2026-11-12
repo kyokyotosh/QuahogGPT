@@ -23,3 +23,14 @@ pip install -r requirements.txt
 ```powershell
 python step1_bigram.py
 ```
+
+Scrape and build the corpus (fetch is cached per source in `data/raw/`):
+
+```powershell
+python step3_scrape.py fetch all
+python step3_scrape.py fetch Characters
+python step3_scrape.py fetch Episodes
+python step3_scrape.py build
+python step3_bpe.py
+python step4_train.py
+```

@@ -147,6 +147,8 @@ def clean(wikitext):
     for line in text.splitlines():
         if line.startswith(("{|", "|", "!")):  # table syntax
             continue
+        if re.fullmatch(r"\S+\.(?:jpe?g|png|gif|svg)", line.strip(), flags=re.I):  # gallery filenames
+            continue
         line = re.sub(r"^=+\s*(.*?)\s*=+\s*$", r"\1", line)  # == heading == -> heading
         line = re.sub(r"^[*#:;]+\s*", "", line)  # list bullets
         lines.append(line.rstrip())
