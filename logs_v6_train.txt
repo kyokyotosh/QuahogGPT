@@ -1,0 +1,72 @@
+/Users/matheuscolombo/Desktop/QuahogGPT/.venv/lib/python3.15/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /Users/runner/work/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+2,027,277 tokens  (train 1,824,549, val 202,728)
+device: mps
+params: 3,084,928
+step     0  train 7.0962  val 7.0962  (saved)
+step   250  train 4.0754  val 4.0798  (saved)
+step   500  train 3.7794  val 3.7980  (saved)
+step   750  train 3.5633  val 3.6261  (saved)
+step  1000  train 3.3397  val 3.4495  (saved)
+step  1250  train 3.2157  val 3.2498  (saved)
+step  1500  train 3.1267  val 3.1810  (saved)
+step  1750  train 3.0202  val 3.1044  (saved)
+step  2000  train 2.9403  val 3.0303  (saved)
+step  2250  train 2.9289  val 2.9801  (saved)
+step  2500  train 2.8855  val 2.9881
+step  2750  train 2.8364  val 2.9301  (saved)
+step  3000  train 2.7913  val 2.9380
+step  3250  train 2.7791  val 2.9301  (saved)
+step  3500  train 2.7315  val 2.8597  (saved)
+step  3750  train 2.7336  val 2.8399  (saved)
+step  4000  train 2.6865  val 2.8478
+step  4250  train 2.6533  val 2.7690  (saved)
+step  4500  train 2.6788  val 2.7801
+step  4750  train 2.6075  val 2.7438  (saved)
+step  5000  train 2.6217  val 2.7506
+step  5250  train 2.6108  val 2.7361  (saved)
+step  5500  train 2.5894  val 2.6948  (saved)
+step  5750  train 2.5928  val 2.6576  (saved)
+step  6000  train 2.5083  val 2.7178
+step  6250  train 2.5256  val 2.6804
+step  6500  train 2.4954  val 2.6359  (saved)
+step  6750  train 2.4912  val 2.6335  (saved)
+step  7000  train 2.4741  val 2.6359
+step  7250  train 2.4553  val 2.6030  (saved)
+step  7500  train 2.4322  val 2.5938  (saved)
+step  7750  train 2.4055  val 2.5652  (saved)
+step  8000  train 2.3959  val 2.5742
+step  8250  train 2.3738  val 2.5787
+step  8500  train 2.3600  val 2.5631  (saved)
+step  8750  train 2.3412  val 2.5469  (saved)
+step  9000  train 2.3020  val 2.5251  (saved)
+step  9250  train 2.2984  val 2.5256
+step  9500  train 2.2709  val 2.4901  (saved)
+step  9750  train 2.2961  val 2.5016
+step 10000  train 2.2693  val 2.4722  (saved)
+step 10250  train 2.2421  val 2.4995
+step 10500  train 2.2326  val 2.4446  (saved)
+step 10750  train 2.2513  val 2.4604
+step 11000  train 2.2057  val 2.4326  (saved)
+step 11250  train 2.1745  val 2.4194  (saved)
+step 11500  train 2.2061  val 2.4669
+step 11750  train 2.2027  val 2.4379
+step 12000  train 2.1854  val 2.4235
+
+best val loss: 2.4194
+
+--- prompt: 'Peter' ---
+Peter passes his urinating that he saw this in "Quagmire's Mom", for seen they appear surprising with no one that taken on a hallucination operation in "Faith No More", they meet tounch Lois in "Lethal Weapons". They concern admit that they get them to watch Rupert and notes that in the same name. Peter tries to become best to that the basis is likely around Batlin on his class. Later, Dr. Hartman later teases it as trying
+
+--- prompt: 'Stewie' ---
+Stewie "Meet the Quagmires". The series followed that Bio is shown used an episode in front of the show.
+
+In "Turkey Guys", Holly is revealed that of the Dolphins were beautiful in the Griffin family.
+
+Chris traveled Joe Swanson's fear of the Movie, played by Seth Greenplay. Peter is difficited with Chris a "budgets" in which he becomes Peter Griffin's credit credit credit for "Road to Europe" for the beginning
+
+--- prompt: 'The Griffins live' ---
+The Griffins live-runching the board that was canceled dig as over 15 adversating the markets, with the same a monster, and other possibly 2002 times. The show, ended & bib.
+
+Penelope
+Penelope is the theme song credited of The Splash Cords. It is an American sitcom and its carette drama widely divorce the initial group: Stewie Griffin, Frasier as the "Penelope" in "Emission Im

@@ -22,9 +22,10 @@ Latest commit: see `git log` (v5 promotion and expanded scrape).
 | v2 (`checkpoints/quahog_gpt_v2.pt`) | 3.08M | 2.76 | 192-wide, 6 layers, 6000 steps, about 66 min on CPU |
 | v3 (`checkpoints/quahog_gpt_v3.pt`) | 3.08M | 2.67 | same config as v2, 12000 steps, constant LR, about 17 min on MPS |
 | v4 (`checkpoints/quahog_gpt_v4.pt`) | 3.08M | 2.50 | same as v3 plus cosine LR decay (3e-3 to 3e-4), 12000 steps, about 16 min on MPS |
-| v5 (`checkpoints/quahog_gpt_v5.pt`) | 3.08M | 2.37 | v4 config on the expanded corpus (5358 pages), 12000 steps, about 16 min on MPS. Val split differs from v4's |
+| v5 (`checkpoints/quahog_gpt_v5.pt`) | 3.08M | 2.37 | v4 config on the expanded corpus (5358 pages), 12000 steps, about 16 min on MPS. Current model |
+| v6 (`checkpoints/quahog_gpt_v6.pt`) | 3.08M | 2.42 | v5 with dropout 0.3 and weight decay 0.2. Worse than v5 on the same-split eval. Config was an uncommitted edit to `step4_train.py`; the repo is back at v5's config |
 
-v5 is the current model: best val 2.37 (step 11250 of 12000). Train 2.06 vs val 2.37. Val numbers for v4 and v5 are on different splits. On a common set of 127 pages unseen by both (neither model trained on them), v5 scores 2.275 and v4 scores 2.503 on the first 128 tokens. The paired difference is 0.227 ± 0.037 (s.e.), so v5 is better. v3, v4, and `quahog_gpt_v2.pt` are kept for comparison, and `quahog_gpt_v2_6k.pt` is a backup copy of v2.
+v5 is the current model: best val 2.37 (step 11250 of 12000). Train 2.06 vs val 2.37. v4 and v5 val numbers are on different splits. On 127 pages unseen by v4 and v5, v5 scores 2.275 and v4 scores 2.503 on the first 128 tokens (paired difference 0.227 ± 0.037). On 434 pages unseen by v5 and v6, v5 scores 2.364 and v6 scores 2.426 (paired difference 0.062 ± 0.005). v3, v4, and `quahog_gpt_v2.pt` are kept for comparison, and `quahog_gpt_v2_6k.pt` is a backup copy of v2.
 
 Sampling (`sample.py`): temperature 0.8 with top-k 40 gives the most readable output. Temperature 1.0 is more random; temperature 0.5 to 0.6 loops on episode lists.
 
@@ -62,9 +63,9 @@ python step3_bpe.py
 
 ## Next up
 
-1. **Same-split comparison (done).** Result above. The eval script is in `/tmp/same_split.py` and is not committed.
-2. **Regularization or a longer run.** v5 peaked at step 11250 of 12000. Try higher dropout or weight decay on the same data.
-3. **Retrieval.** `rag_sample.py` retrieves one passage every 16 tokens, with a 64-token passage budget (the window is 128 tokens). On the common 125-page set, the gain is not significant: v4 -0.002 ± 0.011, v5 0.010 ± 0.012 (s.e.). The earlier gains (v3 0.038, v4 0.016, v5 0.034) came from different validation splits and should not be compared. Ideas: a bigger passage budget or block size (needs retraining), reranking.
+1. **Same-split comparison (done).** Result above. Script: `eval_same_split.py` (committed). Run it with `--old-corpus` when a checkpoint was trained on an older corpus.
+2. **Regularization (done, v6).** Dropout 0.3 and weight decay 0.2 made val worse (2.42 vs 2.37), so v5 stays. The overfitting gap is not fixed by more regularization of this kind.
+3. **Retrieval.** `rag_sample.py` retrieves one passage every 16 tokens, with a 64-token passage budget (the window is 128 tokens). On 434 pages unseen by v5 and v6, the gain is clearly positive: v5 0.033 ± 0.006, v6 0.038 ± 0.006 (s.e.). An earlier claim that it was not significant came from a 125-page set and was underpowered. Ideas: a bigger passage budget or block size (needs retraining), reranking.
 4. **Fine-tune (LoRA).** Not started. There is no pretrained base model.
 
 ## Known issues
