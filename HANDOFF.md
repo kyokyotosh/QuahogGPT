@@ -12,7 +12,7 @@ Where the project stands, so you can pick it up on the Mac.
 | 4. Train on corpus | `gpt.py`, `step4_train.py`, `sample.py` | done (`da95e5c`, `29e6f14`, `d17c02d`) |
 | 5. Retrieval | `retrieve.py`, `rag_sample.py` | done (BM25 over wiki passages); LoRA fine-tune not started |
 
-Latest commit: see `git log` (v5 promotion and expanded scrape).
+Latest commit: see `git log` (v7_long promotion, sampler-faithful eval).
 
 ## Results
 
@@ -22,10 +22,12 @@ Latest commit: see `git log` (v5 promotion and expanded scrape).
 | v2 (`checkpoints/quahog_gpt_v2.pt`) | 3.08M | 2.76 | 192-wide, 6 layers, 6000 steps, about 66 min on CPU |
 | v3 (`checkpoints/quahog_gpt_v3.pt`) | 3.08M | 2.67 | same config as v2, 12000 steps, constant LR, about 17 min on MPS |
 | v4 (`checkpoints/quahog_gpt_v4.pt`) | 3.08M | 2.50 | same as v3 plus cosine LR decay (3e-3 to 3e-4), 12000 steps, about 16 min on MPS |
-| v5 (`checkpoints/quahog_gpt_v5.pt`) | 3.08M | 2.37 | v4 config on the expanded corpus (5358 pages), 12000 steps, about 16 min on MPS. Current model |
+| v5 (`checkpoints/quahog_gpt_v5.pt`) | 3.08M | 2.37 | v4 config on the expanded corpus (5358 pages), 12000 steps, about 16 min on MPS |
+| v7_wide (`checkpoints/quahog_gpt_v7_wide.pt`) | 5.29M | 2.32 | 256-wide, 8 heads, 12000 steps (`python3 step4_train.py --n-embd 256 --n-head 8 --ckpt checkpoints/quahog_gpt_v7_wide.pt`). Best at step 11250 |
+| v7_long (`checkpoints/quahog_gpt_v7_long.pt`) | 3.08M | 2.28 | v5 config, 24000 steps (`python3 step4_train.py --max-iters 24000 --ckpt checkpoints/quahog_gpt_v7_long.pt`). Best at step 23500, still improving at the end. Current model |
 | v6 (`checkpoints/quahog_gpt_v6.pt`) | 3.08M | 2.42 | v5 with dropout 0.3 and weight decay 0.2. Worse than v5 on the same-split eval. Config was an uncommitted edit to `step4_train.py`; the repo is back at v5's config |
 
-v5 is the current model: best val 2.37 (step 11250 of 12000). Train 2.06 vs val 2.37. v4 and v5 val numbers are on different splits. On 127 pages unseen by v4 and v5, v5 scores 2.275 and v4 scores 2.503 on the first 128 tokens (paired difference 0.227 ± 0.037). On 434 pages unseen by v5 and v6, v5 scores 2.364 and v6 scores 2.426 (paired difference 0.062 ± 0.005). v3, v4, and `quahog_gpt_v2.pt` are kept for comparison, and `quahog_gpt_v2_6k.pt` is a backup copy of v2.
+v7_long is the current model: best val 2.28. On 434 pages unseen by v5, v7_wide, and v7_long: v5 2.364, v7_wide 2.296 (paired vs v5 0.068 ± 0.006), v7_long 2.271 (paired vs v5 0.093 ± 0.005). On the sampler's own query (433 pages: first 64 tokens as query, 16-token target, window as in `rag_sample.py`): v7_long without retrieval 2.396 vs v5 2.477 (paired 0.076 ± 0.013). Retrieval on v7_long: first-fit +0.004 ± 0.006, truncated +0.008 ± 0.008, neither significant. Retrieval on v5: first-fit +0.0085 ± 0.0046. Earlier: v4 vs v5 paired 0.227 ± 0.037 (127 pages); v5 vs v6 paired 0.062 ± 0.005 (434 pages). v3, v4, and `quahog_gpt_v2.pt` are kept for comparison, and `quahog_gpt_v2_6k.pt` is a backup copy of v2.
 
 Sampling (`sample.py`): temperature 0.8 with top-k 40 gives the most readable output. Temperature 1.0 is more random; temperature 0.5 to 0.6 loops on episode lists.
 
@@ -70,7 +72,7 @@ python step3_bpe.py
    - With whole passages, budgets 64, 96, and the window cap do not differ. Paired 96 − 64 = −0.005 ± 0.004 (n=214). Keep 64.
    - Ablation on rank-1 (n=404): cutting to 32 tokens gives −0.068; cutting to 64 gives +0.085 overall (−0.055 on passages over 64 tokens, +0.220 on short ones); cutting to 96 gives +0.170. So the gain depends on where the cut lands. The earlier 96-token gain was an artifact of truncation.
    - Duplicated text is not the main driver: only 4.5% of pages share an 8-word run with the retrieved text.
-   - Sampler-query check (`eval_sampler_query.py`; query = first 64 tokens as `rag_sample.py` uses, 16-token target, context capped at 49 tokens, n=433): first-fit minus truncated = −0.013 ± 0.006 (n=304 pages with a fit). Retrieval gain overall is small: truncated top-1 +0.014 ± 0.006. The +0.120 result used the title query, so it does not carry over. `rag_sample.py` still has the whole-passage change: revert to truncation, or keep and test more. Decision pending.
+   - Sampler-query check (`eval_sampler_query.py`, rewritten to match `rag_sample.py` exactly: per-token windows, 64-token context, no 49-token cap). Decision: keep first-fit. Results: v5 first-fit +0.0085 ± 0.0046, v7_wide −0.0017 ± 0.0045, v7_long +0.0042 ± 0.0056; truncated: +0.0056 ± 0.0064, +0.0034 ± 0.0068, +0.0077 ± 0.0075. The variants are not separable on paired data. First-fit keeps whole passages (no mid-sentence cuts). That is a design choice, not a measured win. The earlier −0.013 result used the old 49-token cap and is superseded.
    - Open: sample quality. The check above mirrors the sampler's query and window, but it does not score sampled text.
 4. **Fine-tune (LoRA).** Not started. There is no pretrained base model.
 

@@ -1,0 +1,75 @@
+/Users/matheuscolombo/Desktop/QuahogGPT/.venv/lib/python3.15/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /Users/runner/work/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+2,027,277 tokens  (train 1,824,549, val 202,728)
+device: mps
+params: 5,292,544
+step     0  train 7.0921  val 7.0933  (saved)
+step   250  train 3.9848  val 3.9901  (saved)
+step   500  train 3.5934  val 3.6232  (saved)
+step   750  train 3.2575  val 3.2557  (saved)
+step  1000  train 3.0456  val 3.1008  (saved)
+step  1250  train 2.8824  val 2.9753  (saved)
+step  1500  train 2.8527  val 2.9066  (saved)
+step  1750  train 2.7505  val 2.8456  (saved)
+step  2000  train 2.6891  val 2.7803  (saved)
+step  2250  train 2.6308  val 2.7877
+step  2500  train 2.5715  val 2.7744  (saved)
+step  2750  train 2.5474  val 2.7247  (saved)
+step  3000  train 2.4896  val 2.7049  (saved)
+step  3250  train 2.4987  val 2.7210
+step  3500  train 2.4685  val 2.6479  (saved)
+step  3750  train 2.4238  val 2.6519
+step  4000  train 2.3859  val 2.6084  (saved)
+step  4250  train 2.3860  val 2.6219
+step  4500  train 2.3367  val 2.5830  (saved)
+step  4750  train 2.3844  val 2.5765  (saved)
+step  5000  train 2.3083  val 2.5478  (saved)
+step  5250  train 2.2870  val 2.5565
+step  5500  train 2.2418  val 2.5013  (saved)
+step  5750  train 2.2841  val 2.5123
+step  6000  train 2.2277  val 2.4872  (saved)
+step  6250  train 2.2086  val 2.5054
+step  6500  train 2.1841  val 2.5206
+step  6750  train 2.2040  val 2.4676  (saved)
+step  7000  train 2.1566  val 2.4282  (saved)
+step  7250  train 2.1174  val 2.4370
+step  7500  train 2.1720  val 2.4724
+step  7750  train 2.1140  val 2.4102  (saved)
+step  8000  train 2.1017  val 2.4206
+step  8250  train 2.0455  val 2.4059  (saved)
+step  8500  train 2.0494  val 2.4252
+step  8750  train 2.0060  val 2.3898  (saved)
+step  9000  train 2.0130  val 2.3903
+step  9250  train 1.9633  val 2.3828  (saved)
+step  9500  train 1.9945  val 2.3395  (saved)
+step  9750  train 1.9368  val 2.3550
+step 10000  train 1.9287  val 2.3532
+step 10250  train 1.9542  val 2.3802
+step 10500  train 1.9454  val 2.3783
+step 10750  train 1.9140  val 2.3693
+step 11000  train 1.8708  val 2.3194  (saved)
+step 11250  train 1.8524  val 2.3160  (saved)
+step 11500  train 1.9100  val 2.3421
+step 11750  train 1.8695  val 2.3246
+step 12000  train 1.8663  val 2.3310
+
+best val loss: 2.3160
+
+--- prompt: 'Peter' ---
+Peter Iʻlaughter Wahlberg
+Peter Iles is an American reality television series artists with the fictional character, a Phil and a liberg in the 1960s, an original debut in 1981 superhero appearing on The Simpsons, Fast Times in Charge Pack and The Top Gun: Bucks of Favor and Solo.
+
+In "The Most Interesting Man in the World", Stewie Griffin assists that he's Spinfeld with Falko to help on his  girlfriend Jerry Fo
+
+--- prompt: 'Stewie' ---
+Stewie hopes that Meg die, Cleveland is renting a car turned out that it hasn't been painted in the ninetime stories.
+
+Brian walks at the areasts a white pornographic movie in "The Cleveland-Loretta Quagmire", although Angela had rejected to Quagmire but no one was rich and he would evade him turn to the cast.
+
+R2-D2
+R2-D2-D2 was break-the-founded with R2-D2 and was held in a spelling appear
+
+--- prompt: 'The Griffins live' ---
+The Griffins live streaming to buy that he shouldn't be working up many years, such as "little bodies" but "dancer". When Lois does aboard his first place, Peter is pointed up as Potty Little Shop. Potty candy insists it was saved by Julie and the understanding stereotypical Spa.
+
+After seeing Principal Shepherd is good friends and confronts them about the absence of motel robot dream. Peter tries to strike up

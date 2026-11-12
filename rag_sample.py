@@ -1,4 +1,4 @@
-"""Sample from the v3 checkpoint with retrieval.
+"""Sample from the v7_long checkpoint with retrieval.
 
 The model sees 128 tokens at a time. Every SEGMENT generated tokens, the wiki
 passage most relevant to the recent text is retrieved and placed at the start of
@@ -16,7 +16,7 @@ from gpt import GPT, GPTConfig
 from retrieve import load_index
 from step3_bpe import build_vocab, decode, encode
 
-CKPT_PATH = pathlib.Path("checkpoints/quahog_gpt_v5.pt")
+CKPT_PATH = pathlib.Path("checkpoints/quahog_gpt_v7_long.pt")
 TOKENIZER_PATH = pathlib.Path("data/tokenizer.json")
 PROMPTS = ["Peter", "Stewie", "The Griffins live"]
 NEW_TOKENS = 150

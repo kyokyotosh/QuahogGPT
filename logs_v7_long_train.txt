@@ -1,0 +1,145 @@
+/Users/matheuscolombo/Desktop/QuahogGPT/.venv/lib/python3.15/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /Users/runner/work/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+2,027,277 tokens  (train 1,824,549, val 202,728)
+device: mps
+params: 3,084,928
+step     0  train 7.0962  val 7.0962  (saved)
+step   250  train 4.0495  val 4.0521  (saved)
+step   500  train 3.6832  val 3.7047  (saved)
+step   750  train 3.3794  val 3.4479  (saved)
+step  1000  train 3.1426  val 3.2623  (saved)
+step  1250  train 3.0328  val 3.0765  (saved)
+step  1500  train 2.9487  val 3.0254  (saved)
+step  1750  train 2.8548  val 2.9573  (saved)
+step  2000  train 2.7831  val 2.8922  (saved)
+step  2250  train 2.7840  val 2.8620  (saved)
+step  2500  train 2.7345  val 2.8649
+step  2750  train 2.6900  val 2.8193  (saved)
+step  3000  train 2.6408  val 2.8280
+step  3250  train 2.6305  val 2.8212
+step  3500  train 2.5902  val 2.7499  (saved)
+step  3750  train 2.5950  val 2.7475  (saved)
+step  4000  train 2.5506  val 2.7505
+step  4250  train 2.5199  val 2.6745  (saved)
+step  4500  train 2.5496  val 2.6902
+step  4750  train 2.4804  val 2.6576  (saved)
+step  5000  train 2.5007  val 2.6672
+step  5250  train 2.5030  val 2.6686
+step  5500  train 2.4804  val 2.6287  (saved)
+step  5750  train 2.4928  val 2.5926  (saved)
+step  6000  train 2.4119  val 2.6603
+step  6250  train 2.4387  val 2.6306
+step  6500  train 2.4220  val 2.5942
+step  6750  train 2.4175  val 2.5941
+step  7000  train 2.4153  val 2.6044
+step  7250  train 2.4060  val 2.5822  (saved)
+step  7500  train 2.3915  val 2.5795  (saved)
+step  7750  train 2.3759  val 2.5562  (saved)
+step  8000  train 2.3783  val 2.5792
+step  8250  train 2.3572  val 2.5780
+step  8500  train 2.3587  val 2.5811
+step  8750  train 2.3471  val 2.5637
+step  9000  train 2.3147  val 2.5492  (saved)
+step  9250  train 2.3139  val 2.5543
+step  9500  train 2.3010  val 2.5220  (saved)
+step  9750  train 2.3262  val 2.5334
+step 10000  train 2.3129  val 2.5155  (saved)
+step 10250  train 2.2910  val 2.5436
+step 10500  train 2.2760  val 2.4921  (saved)
+step 10750  train 2.3107  val 2.5153
+step 11000  train 2.2611  val 2.4831  (saved)
+step 11250  train 2.2272  val 2.4754  (saved)
+step 11500  train 2.2620  val 2.5202
+step 11750  train 2.2564  val 2.4871
+step 12000  train 2.2407  val 2.4646  (saved)
+step 12250  train 2.2239  val 2.4520  (saved)
+step 12500  train 2.2095  val 2.4472  (saved)
+step 12750  train 2.2022  val 2.4649
+step 13000  train 2.2127  val 2.4481
+step 13250  train 2.1941  val 2.4538
+step 13500  train 2.1515  val 2.4752
+step 13750  train 2.1907  val 2.4337  (saved)
+step 14000  train 2.1484  val 2.3789  (saved)
+step 14250  train 2.1317  val 2.4434
+step 14500  train 2.1374  val 2.4260
+step 14750  train 2.1529  val 2.4408
+step 15000  train 2.1390  val 2.4553
+step 15250  train 2.1189  val 2.4422
+step 15500  train 2.1279  val 2.4421
+step 15750  train 2.1157  val 2.4025
+step 16000  train 2.1082  val 2.4178
+step 16250  train 2.0941  val 2.3940
+step 16500  train 2.0698  val 2.3972
+step 16750  train 2.0379  val 2.4075
+step 17000  train 2.0743  val 2.3906
+step 17250  train 2.0724  val 2.3778  (saved)
+step 17500  train 2.0390  val 2.3707  (saved)
+step 17750  train 2.0262  val 2.3423  (saved)
+step 18000  train 2.0336  val 2.3960
+step 18250  train 2.0048  val 2.3765
+step 18500  train 2.0034  val 2.3534
+step 18750  train 2.0146  val 2.3540
+step 19000  train 2.0056  val 2.3514
+step 19250  train 1.9774  val 2.3835
+step 19500  train 1.9703  val 2.3693
+step 19750  train 2.0088  val 2.3132  (saved)
+step 20000  train 1.9655  val 2.3264
+step 20250  train 1.9704  val 2.3130  (saved)
+step 20500  train 1.9167  val 2.3461
+step 20750  train 1.9330  val 2.3101  (saved)
+step 21000  train 1.9085  val 2.3111
+step 21250  train 1.8963  val 2.3159
+step 21500  train 1.9291  val 2.3267
+step 21750  train 1.9365  val 2.3531
+step 22000  train 1.9265  val 2.3370
+step 22250  train 1.9077  val 2.3583
+step 22500  train 1.9097  val 2.2906  (saved)
+step 22750  train 1.9099  val 2.3351
+step 23000  train 1.8763  val 2.3270
+step 23250  train 1.8604  val 2.3185
+step 23500  train 1.9126  val 2.2789  (saved)
+step 23750  train 1.8861  val 2.3164
+step 24000  train 1.8900  val 2.3119
+
+best val loss: 2.2789
+
+--- prompt: 'Peter' ---
+Peter: They're you cannot that I should become weird. S his younger younger brother who they are on. You're high, high.
+
+Brian: Oh, Brian. Aldey, that has Goosye up..
+
+The Stormtroopers really know what he spends his water pack in the show in "A Lot Going On Upstairs". This story a point of students Stewie and ribso are saved by Stewie.
+
+Peter/Brian lists television shows in which Seth telling My Teenage
+
+--- prompt: 'Stewie' ---
+Stewie
+Anne Hathaway
+My Cousin
+Chris Cox
+Emily Osment
+Chris Diamantopoulos
+Ralph Garman
+Jonathan Gaines
+Rachael MacFarlane
+Chris Parnell
+Benjamin Palmer
+Alec Sulkin
+Jennifer Tilly
+John Viener
+
+Mother Tucker
+John G. Brennan
+Issac Ryan Brown
+Quagmire's Dad
+Emily Osment
+John G. Brennan
+H. Jon Benjam
+
+--- prompt: 'The Griffins live' ---
+The Griffins live at Peter's baby head Pete" in "Once Bitten" when Peter sends a fetus.
+
+During an attempt to watch Tony Knockers in "The in Front of the Mother". However, Peter tells him a relationship with Brian, hurts. While the problem loses over to the custody, he suffers from Lois' house. Just as his dream will tell her that Meg he saw being really his path, but results in love with Chris.
+
+Gary Janetti
+G
