@@ -1,0 +1,88 @@
+/Users/matheuscolombo/Desktop/QuahogGPT/.venv/lib/python3.15/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /Users/runner/work/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+1,705,388 tokens  (train 1,534,849, val 170,539)
+device: mps
+params: 3,084,928
+step     0  train 7.0974  val 7.0963  (saved)
+step   250  train 4.0287  val 4.1312  (saved)
+step   500  train 3.6896  val 3.8254  (saved)
+step   750  train 3.3746  val 3.5307  (saved)
+step  1000  train 3.1444  val 3.3815  (saved)
+step  1250  train 3.0112  val 3.2249  (saved)
+step  1500  train 2.8871  val 3.1340  (saved)
+step  1750  train 2.8485  val 3.0867  (saved)
+step  2000  train 2.7647  val 3.0174  (saved)
+step  2250  train 2.7238  val 3.0328
+step  2500  train 2.7357  val 2.9635  (saved)
+step  2750  train 2.6721  val 2.9703
+step  3000  train 2.6541  val 2.9057  (saved)
+step  3250  train 2.6237  val 2.8933  (saved)
+step  3500  train 2.5791  val 2.8513  (saved)
+step  3750  train 2.5790  val 2.8674
+step  4000  train 2.5510  val 2.8381  (saved)
+step  4250  train 2.5304  val 2.8215  (saved)
+step  4500  train 2.5418  val 2.8207  (saved)
+step  4750  train 2.4974  val 2.7705  (saved)
+step  5000  train 2.4863  val 2.8184
+step  5250  train 2.4813  val 2.8206
+step  5500  train 2.4765  val 2.7724
+step  5750  train 2.4828  val 2.7734
+step  6000  train 2.4455  val 2.7693  (saved)
+step  6250  train 2.4178  val 2.7662  (saved)
+step  6500  train 2.4378  val 2.7272  (saved)
+step  6750  train 2.4431  val 2.7514
+step  7000  train 2.4074  val 2.7661
+step  7250  train 2.3979  val 2.7204  (saved)
+step  7500  train 2.4322  val 2.7545
+step  7750  train 2.4047  val 2.7636
+step  8000  train 2.3919  val 2.7329
+step  8250  train 2.3687  val 2.7290
+step  8500  train 2.3723  val 2.7322
+step  8750  train 2.3863  val 2.7220
+step  9000  train 2.3949  val 2.7102  (saved)
+step  9250  train 2.3720  val 2.7156
+step  9500  train 2.3967  val 2.6831  (saved)
+step  9750  train 2.3414  val 2.7178
+step 10000  train 2.3467  val 2.7116
+step 10250  train 2.3685  val 2.7198
+step 10500  train 2.3576  val 2.6923
+step 10750  train 2.3264  val 2.7040
+step 11000  train 2.3415  val 2.6801  (saved)
+step 11250  train 2.3373  val 2.6843
+step 11500  train 2.3302  val 2.6988
+step 11750  train 2.3090  val 2.6987
+step 12000  train 2.3145  val 2.6708  (saved)
+
+best val loss: 2.6708
+
+--- prompt: 'Peter' ---
+Peter passes his urination that could acknowledge. In it, she formed an surgery, they all righten.
+
+In "The Fat Guy Strangler", Stewie fails to just confront his lunch musician.
+
+Snapitating at any that the woods addicted by Stewart Ostriches on his drink medical sales for becomes fired from the townsmashes for the mini-pligies, Brian ends up came back with the store rolling with prospects of
+
+--- prompt: 'Stewie' ---
+Stewie "Meet the Quagmires".
+
+For spells Bitchcra Niel Revue to the improvidence of Cleveland University of Jail Holis along with her, Player Readings are her steper as a strip behind.
+
+Peter tries to set up by fear in time Marty Mullman's Ramsey Darknolds Kore in "Friends of Peter G".
+
+Following the eyes of the credits else thanks to bring Stu as well becomes many of getting beat ups
+
+--- prompt: 'The Griffins live' ---
+The Griffins live in them as well as the theme song is s cancer in danger over the lightning good time.
+
+Lyrics
+You could awaken at you where pay dirty years as at in the "Mantecore & Ellis House!"
+
+Lois: ♪Memories as Superman with freeze♪
+
+Herbert: ♪Misery on prizein’ it could take his love garnish. ♪
+
+Brian: Peter, that is gay! ♪
+
+♪ Miser Charles as power. ♪
+
+♪ Mom Kevin's really

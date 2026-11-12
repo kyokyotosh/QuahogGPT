@@ -17,7 +17,7 @@ torch.manual_seed(1337)
 
 CORPUS_PATH = pathlib.Path("data/corpus.txt")
 TOKENIZER_PATH = pathlib.Path("data/tokenizer.json")
-CKPT_PATH = pathlib.Path("checkpoints/quahog_gpt_v2.pt")
+CKPT_PATH = pathlib.Path("checkpoints/quahog_gpt_v3.pt")
 
 device = "mps" if torch.backends.mps.is_available() else "cpu"
 
@@ -36,7 +36,7 @@ cfg = GPTConfig(vocab_size=len(vocab), block_size=128, n_embd=192, n_head=6, n_l
 batch_size = 32
 lr = 3e-3
 weight_decay = 0.1
-max_iters = 6000
+max_iters = 12000
 eval_interval = 250
 eval_iters = 40
 
