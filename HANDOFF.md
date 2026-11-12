@@ -65,7 +65,7 @@ python step3_bpe.py
 
 1. **Same-split comparison (done).** Result above. Script: `eval_same_split.py` (committed). Run it with `--old-corpus` when a checkpoint was trained on an older corpus.
 2. **Regularization (done, v6).** Dropout 0.3 and weight decay 0.2 made val worse (2.42 vs 2.37), so v5 stays. The overfitting gap is not fixed by more regularization of this kind.
-3. **Retrieval (updated).** Tests on v5, body 24 tokens, query = title. Scripts are in `/tmp` and not committed.
+3. **Retrieval (updated).** Tests on v5, body 24 tokens, query = title. Scripts: `eval_first_fit.py` (truncated vs whole passage), `eval_whole_passages.py` (budgets), `eval_ablate_retrieval.py` (cut-point ablation), `eval_overlap.py` (duplicated text check).
    - The old `rag_sample.py` cut the top-1 passage to 64 tokens, mid-sentence. On the 394 pages with a whole passage that fits, the truncated top-1 gains +0.090 and the first-fitting whole passage gains +0.210. Paired difference +0.120 ± 0.011. Applied in `rag_sample.py` (`retrieve_ids`).
    - With whole passages, budgets 64, 96, and the window cap do not differ. Paired 96 − 64 = −0.005 ± 0.004 (n=214). Keep 64.
    - Ablation on rank-1 (n=404): cutting to 32 tokens gives −0.068; cutting to 64 gives +0.085 overall (−0.055 on passages over 64 tokens, +0.220 on short ones); cutting to 96 gives +0.170. So the gain depends on where the cut lands. The earlier 96-token gain was an artifact of truncation.
