@@ -24,7 +24,7 @@ Latest commit: see `git log` (v5 promotion and expanded scrape).
 | v4 (`checkpoints/quahog_gpt_v4.pt`) | 3.08M | 2.50 | same as v3 plus cosine LR decay (3e-3 to 3e-4), 12000 steps, about 16 min on MPS |
 | v5 (`checkpoints/quahog_gpt_v5.pt`) | 3.08M | 2.37 | v4 config on the expanded corpus (5358 pages), 12000 steps, about 16 min on MPS. Val split differs from v4's |
 
-v5 is the current model: best val 2.37 (step 11250 of 12000). Train 2.06 vs val 2.37. v4 (2.50) was trained on the old 4676-page corpus and scored on a different split, so the two numbers are not directly comparable. v3, v4, and `quahog_gpt_v2.pt` are kept for comparison, and `quahog_gpt_v2_6k.pt` is a backup copy of v2.
+v5 is the current model: best val 2.37 (step 11250 of 12000). Train 2.06 vs val 2.37. Val numbers for v4 and v5 are on different splits. On a common set of 127 pages unseen by both (neither model trained on them), v5 scores 2.275 and v4 scores 2.503 on the first 128 tokens. The paired difference is 0.227 ± 0.037 (s.e.), so v5 is better. v3, v4, and `quahog_gpt_v2.pt` are kept for comparison, and `quahog_gpt_v2_6k.pt` is a backup copy of v2.
 
 Sampling (`sample.py`): temperature 0.8 with top-k 40 gives the most readable output. Temperature 1.0 is more random; temperature 0.5 to 0.6 loops on episode lists.
 
@@ -62,9 +62,9 @@ python step3_bpe.py
 
 ## Next up
 
-1. **Same-split comparison.** v4 and v5 were scored on different validation pages, so the 0.13 drop in val loss is confounded with the split change. Evaluate both on one split.
+1. **Same-split comparison (done).** Result above. The eval script is in `/tmp/same_split.py` and is not committed.
 2. **Regularization or a longer run.** v5 peaked at step 11250 of 12000. Try higher dropout or weight decay on the same data.
-3. **Retrieval.** `rag_sample.py` retrieves one passage every 16 tokens, with a 64-token passage budget (the window is 128 tokens). Gain on validation-region pages: v3 0.038 ± 0.007, v4 0.016 ± 0.007, v5 0.034 ± 0.007 (s.e.; splits differ). Ideas: a bigger passage budget or block size (needs retraining), reranking.
+3. **Retrieval.** `rag_sample.py` retrieves one passage every 16 tokens, with a 64-token passage budget (the window is 128 tokens). On the common 125-page set, the gain is not significant: v4 -0.002 ± 0.011, v5 0.010 ± 0.012 (s.e.). The earlier gains (v3 0.038, v4 0.016, v5 0.034) came from different validation splits and should not be compared. Ideas: a bigger passage budget or block size (needs retraining), reranking.
 4. **Fine-tune (LoRA).** Not started. There is no pretrained base model.
 
 ## Known issues
