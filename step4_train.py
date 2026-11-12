@@ -17,7 +17,7 @@ torch.manual_seed(1337)
 
 CORPUS_PATH = pathlib.Path("data/corpus.txt")
 TOKENIZER_PATH = pathlib.Path("data/tokenizer.json")
-CKPT_PATH = pathlib.Path("checkpoints/quahog_gpt.pt")
+CKPT_PATH = pathlib.Path("checkpoints/quahog_gpt_v2.pt")
 
 # Load tokenizer and corpus.
 merges = {(a, b): idx for a, b, idx in json.loads(TOKENIZER_PATH.read_text(encoding="utf-8"))}
@@ -28,8 +28,9 @@ split = int(0.9 * len(data))
 train_data, val_data = data[:split], data[split:]
 print(f"{len(data):,} tokens  (train {len(train_data):,}, val {len(val_data):,})")
 
-# Hyperparameters. The corpus is small (~80k tokens), so the model is kept small too.
-cfg = GPTConfig(vocab_size=len(vocab), block_size=128, n_embd=128, n_head=4, n_layer=4, dropout=0.2)
+# Hyperparameters. Corpus is ~1.7M tokens. v1 (128-wide, 4-layer, 1.07M params) reached
+# val 2.97 at 6000 steps and was still improving; this model is ~2.6M params, trained on CPU.
+cfg = GPTConfig(vocab_size=len(vocab), block_size=128, n_embd=192, n_head=6, n_layer=6, dropout=0.2)
 batch_size = 32
 lr = 3e-3
 weight_decay = 0.1
