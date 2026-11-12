@@ -157,8 +157,8 @@ def clean(wikitext):
     return re.sub(r"\n{3,}", "\n\n", text).strip()
 
 
-def build():
-    """Merge all raw caches (deduplicated by title), clean them, write the corpus."""
+def load_docs():
+    """Unique cleaned pages as (title, body), in a fixed order. Stubs and redirects are dropped."""
     pages = {}
     for path in sorted(RAW_DIR.glob("*.json")):
         found = json.loads(path.read_text(encoding="utf-8"))
@@ -168,11 +168,18 @@ def build():
     for title, wikitext in pages.items():
         body = clean(wikitext)
         if len(body) >= 200:  # skip stubs and redirects
-            docs.append(f"{title}\n{body}")
+            docs.append((title, body))
+    return docs, len(pages)
+
+
+def build():
+    """Merge all raw caches (deduplicated by title), clean them, write the corpus."""
+    found, total = load_docs()
+    docs = [f"{title}\n{body}" for title, body in found]
     random.Random(0).shuffle(docs)  # mix categories so any contiguous train/val split is representative
     corpus = "\n\n".join(docs)
     CORPUS_PATH.write_text(corpus, encoding="utf-8")
-    print(f"kept {len(docs)}/{len(pages)} unique pages, {len(corpus):,} characters -> {CORPUS_PATH}")
+    print(f"kept {len(docs)}/{total} unique pages, {len(corpus):,} characters -> {CORPUS_PATH}")
 
 
 if __name__ == "__main__":

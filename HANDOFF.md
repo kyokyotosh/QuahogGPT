@@ -10,9 +10,9 @@ Where the project stands, so you can pick it up on the Mac.
 | 2. Tiny GPT | `step2_gpt.py` | done (`9b5867a`) |
 | 3. Scrape + BPE | `step3_scrape.py`, `step3_bpe.py` | done (`7ce6c00`, `ff97738`, `8c18201`, `29e6f14`) |
 | 4. Train on corpus | `gpt.py`, `step4_train.py`, `sample.py` | done (`da95e5c`, `29e6f14`, `d17c02d`) |
-| 5. Fine-tune + retrieval | none | not started |
+| 5. Retrieval | `retrieve.py`, `rag_sample.py` | done (BM25 over wiki passages); LoRA fine-tune not started |
 
-Latest commit: `d17c02d`.
+Latest commit: `d17c02d`. Uncommitted: v3 promotion, step 5 retrieval, and the `load_docs()` refactor in `step3_scrape.py`.
 
 ## Results
 
@@ -20,8 +20,9 @@ Latest commit: `d17c02d`.
 | --- | --- | --- | --- |
 | v1 (`checkpoints/quahog_gpt.pt`) | 1.07M | 2.97 | 128-wide, 4 layers, 6000 steps |
 | v2 (`checkpoints/quahog_gpt_v2.pt`) | 3.08M | 2.76 | 192-wide, 6 layers, 6000 steps, about 66 min on CPU |
+| v3 (`checkpoints/quahog_gpt_v3.pt`) | 3.08M | 2.67 | same config as v2, 12000 steps, about 17 min on MPS |
 
-v2 is the current model. Train 2.42 vs val 2.76, so overfitting has started but val was still falling at the end.
+v3 is the current model. Train 2.31 vs val 2.67 at step 12000. Val was still improving at the last checkpoint. `quahog_gpt_v2.pt` is kept for comparison, and `quahog_gpt_v2_6k.pt` is a backup copy of it.
 
 Sampling (`sample.py`): temperature 0.8 with top-k 40 gives the most readable output. Temperature 1.0 is more random; temperature 0.5 to 0.6 loops on episode lists.
 
@@ -59,9 +60,10 @@ python step3_bpe.py
 
 ## Next up
 
-1. **Device change (not written yet).** `step4_train.py` and `sample.py` run everything on CPU. Add `device = "mps" if torch.backends.mps.is_available() else "cpu"`, move the model and batches to `device`, and use `map_location=device` on `torch.load`.
-2. **Timing test on the Mac.** Run about 50 steps, compare with the CPU rate (v2 took about 40 s per 250 steps on Windows).
-3. **Decide the next experiment.** Options: a longer or larger run (v2 was still improving), more data (more wiki categories), or step 5 (retrieval, so the model can look up facts instead of guessing).
+1. **Longer or larger run.** v3 was still improving at step 12000. The learning rate is constant (3e-3, no decay); decay is not tried yet.
+2. **More data.** The train/val gap (2.31 vs 2.67) says the model is data-limited. Add wiki categories, after the Fandom license is checked.
+3. **Retrieval.** `rag_sample.py` retrieves one passage every 16 tokens, with a 64-token passage budget (the window is 128 tokens). Measured on 283 held-out pages: plain loss 2.273, grounded 2.242, gain 0.031 ± 0.007 (s.e.). The first retrieved passages match the prompts. Ideas: a bigger passage budget or block size (needs retraining), reranking.
+4. **Fine-tune (LoRA).** Not started. There is no pretrained base model.
 
 ## Known issues
 
@@ -69,3 +71,4 @@ python step3_bpe.py
 - `sample.py` runs only the two settings `(1.0, None)` and `(0.8, 40)`.
 - Git warns about LF to CRLF on Windows. Harmless.
 - `torch` on Windows prints a NumPy warning. Harmless. `pip install numpy` removes it.
+- `data/corpus.txt` on this Mac does not reproduce from `data/raw` with the current build code. Same 4676 pages and 4,240,663 characters, different document order. Retrieval reads `data/raw` directly, so it is unaffected. v3 trained on the on-disk corpus.
