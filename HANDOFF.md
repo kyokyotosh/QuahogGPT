@@ -70,7 +70,8 @@ python step3_bpe.py
    - With whole passages, budgets 64, 96, and the window cap do not differ. Paired 96 − 64 = −0.005 ± 0.004 (n=214). Keep 64.
    - Ablation on rank-1 (n=404): cutting to 32 tokens gives −0.068; cutting to 64 gives +0.085 overall (−0.055 on passages over 64 tokens, +0.220 on short ones); cutting to 96 gives +0.170. So the gain depends on where the cut lands. The earlier 96-token gain was an artifact of truncation.
    - Duplicated text is not the main driver: only 4.5% of pages share an 8-word run with the retrieved text.
-   - Open: sample quality of the whole-passage version has only been checked by eye on 3 prompts. The gain is measured on the eval proxy (title query, 24-token body), not on sampled text.
+   - Sampler-query check (`eval_sampler_query.py`; query = first 64 tokens as `rag_sample.py` uses, 16-token target, context capped at 49 tokens, n=433): first-fit minus truncated = −0.013 ± 0.006 (n=304 pages with a fit). Retrieval gain overall is small: truncated top-1 +0.014 ± 0.006. The +0.120 result used the title query, so it does not carry over. `rag_sample.py` still has the whole-passage change: revert to truncation, or keep and test more. Decision pending.
+   - Open: sample quality. The check above mirrors the sampler's query and window, but it does not score sampled text.
 4. **Fine-tune (LoRA).** Not started. There is no pretrained base model.
 
 ## Known issues
