@@ -22,7 +22,7 @@ import urllib.request
 
 API = "https://familyguy.fandom.com/api.php"
 USER_AGENT = "QuahogGPT-learning-project/0.1 (personal learning project)"
-MAX_ALL_PAGES = 400
+MAX_ALL_PAGES = None  # None fetches every main-namespace article
 CATEGORY_DEPTH = 2  # how many levels of subcategories to follow
 BATCH = 50  # MediaWiki allows up to 50 titles per request for non-bot clients
 
@@ -38,10 +38,10 @@ def api(**params):
         return json.load(resp)
 
 
-def all_titles(limit):
-    """Article titles in the main namespace, skipping redirects."""
+def all_titles(limit=None):
+    """Article titles in the main namespace, skipping redirects. limit=None means all."""
     titles, cont = [], {}
-    while len(titles) < limit:
+    while limit is None or len(titles) < limit:
         data = api(
             action="query",
             list="allpages",
@@ -54,7 +54,7 @@ def all_titles(limit):
         if "continue" not in data:
             break
         cont = data["continue"]
-    return titles[:limit]
+    return titles if limit is None else titles[:limit]
 
 
 def category_members(category):
