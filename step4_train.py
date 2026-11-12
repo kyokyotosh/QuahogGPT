@@ -6,6 +6,7 @@ can't ruin the saved model.
 """
 
 import json
+import math
 import pathlib
 
 import torch
@@ -17,7 +18,7 @@ torch.manual_seed(1337)
 
 CORPUS_PATH = pathlib.Path("data/corpus.txt")
 TOKENIZER_PATH = pathlib.Path("data/tokenizer.json")
-CKPT_PATH = pathlib.Path("checkpoints/quahog_gpt_v3.pt")
+CKPT_PATH = pathlib.Path("checkpoints/quahog_gpt_v4.pt")
 
 device = "mps" if torch.backends.mps.is_available() else "cpu"
 
@@ -34,7 +35,7 @@ print(f"{len(data):,} tokens  (train {len(train_data):,}, val {len(val_data):,})
 # val 2.97 at 6000 steps and was still improving; this model is ~2.6M params, trained on CPU.
 cfg = GPTConfig(vocab_size=len(vocab), block_size=128, n_embd=192, n_head=6, n_layer=6, dropout=0.2)
 batch_size = 32
-lr = 3e-3
+lr = 3e-3  # peak LR; cosine decays to 10% of peak at max_iters
 weight_decay = 0.1
 max_iters = 12000
 eval_interval = 250
@@ -82,6 +83,8 @@ for it in range(max_iters + 1):
         print(f"step {it:5d}  train {losses['train']:.4f}  val {losses['val']:.4f}{marker}")
     if it == max_iters:
         break
+    for g in optimizer.param_groups:
+        g["lr"] = lr * (0.1 + 0.9 * 0.5 * (1 + math.cos(math.pi * it / max_iters)))
     x, y = get_batch(train_data)
     _, loss = model(x, y)
     optimizer.zero_grad(set_to_none=True)

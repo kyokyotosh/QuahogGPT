@@ -1,0 +1,87 @@
+/Users/matheuscolombo/Desktop/QuahogGPT/.venv/lib/python3.15/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /Users/runner/work/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+1,705,388 tokens  (train 1,534,849, val 170,539)
+device: mps
+params: 3,084,928
+step     0  train 7.0974  val 7.0963  (saved)
+step   250  train 4.0276  val 4.1321  (saved)
+step   500  train 3.6951  val 3.8300  (saved)
+step   750  train 3.3775  val 3.5347  (saved)
+step  1000  train 3.1403  val 3.3785  (saved)
+step  1250  train 3.0129  val 3.2250  (saved)
+step  1500  train 2.8838  val 3.1336  (saved)
+step  1750  train 2.8399  val 3.0811  (saved)
+step  2000  train 2.7632  val 3.0243  (saved)
+step  2250  train 2.7164  val 3.0283
+step  2500  train 2.7220  val 2.9510  (saved)
+step  2750  train 2.6498  val 2.9526
+step  3000  train 2.6312  val 2.8895  (saved)
+step  3250  train 2.5964  val 2.8826  (saved)
+step  3500  train 2.5414  val 2.8197  (saved)
+step  3750  train 2.5401  val 2.8402
+step  4000  train 2.5068  val 2.8079  (saved)
+step  4250  train 2.4747  val 2.7892  (saved)
+step  4500  train 2.4816  val 2.7852  (saved)
+step  4750  train 2.4285  val 2.7302  (saved)
+step  5000  train 2.4097  val 2.7614
+step  5250  train 2.3892  val 2.7615
+step  5500  train 2.3771  val 2.7081  (saved)
+step  5750  train 2.3725  val 2.7062  (saved)
+step  6000  train 2.3183  val 2.6870  (saved)
+step  6250  train 2.2898  val 2.6906
+step  6500  train 2.2978  val 2.6427  (saved)
+step  6750  train 2.2947  val 2.6629
+step  7000  train 2.2426  val 2.6676
+step  7250  train 2.2225  val 2.6184  (saved)
+step  7500  train 2.2377  val 2.6380
+step  7750  train 2.2021  val 2.6413
+step  8000  train 2.1769  val 2.6108  (saved)
+step  8250  train 2.1433  val 2.5911  (saved)
+step  8500  train 2.1369  val 2.5957
+step  8750  train 2.1376  val 2.5832  (saved)
+step  9000  train 2.1342  val 2.5655  (saved)
+step  9250  train 2.1011  val 2.5641  (saved)
+step  9500  train 2.1137  val 2.5320  (saved)
+step  9750  train 2.0548  val 2.5673
+step 10000  train 2.0367  val 2.5503
+step 10250  train 2.0547  val 2.5571
+step 10500  train 2.0357  val 2.5275  (saved)
+step 10750  train 2.0061  val 2.5417
+step 11000  train 2.0133  val 2.5204  (saved)
+step 11250  train 1.9949  val 2.5183  (saved)
+step 11500  train 1.9808  val 2.5196
+step 11750  train 1.9684  val 2.5253
+step 12000  train 1.9596  val 2.4991  (saved)
+
+best val loss: 2.4991
+
+--- prompt: 'Peter' ---
+Peter passs everyone else but Tom Tucker, Diane Simmons becomes surprising with no else.
+
+In "The First No L", Mayor West settled "I Got a Little List".
+
+Quahog Entertainment Tonight
+"Quahog Entertainment Tonight" is a song by his single in the same name by Peter Griffin for becoming a bit at the children's Cloud in Quahog. It was released when it was trapped in the episode, which later became the first year 203
+
+--- prompt: 'Stewie' ---
+Stewie "Meet the Quagmires".
+
+For 2004 Something, Something, Something, Dark Side (as Marty)
+
+External Links
+Buff Goes Out that's Day in Hard to Do
+If I'm Dyin', I'm Lyin' (as Jessary External Links)
+
+External Links
+
+If I met Rat a Universe
+"If I'm Lyin'" is sung by Peter Griffin to Peter Griffin in "Stewie Goes for a Drive".  As they t
+
+--- prompt: 'The Griffins live' ---
+The Griffins live in The Cleveland Show. While filming, Jr. appears dig as a personalized mask, with the same as a lounge interest personality around the Griffin home.
+
+Notes & Song
+The Notes
+At the act was chimplying as a second single sketch comedy, on which it was a powerful counselor for the New York City, the New Seven City in the New England Patriots set.
+
+Peter Griffin, as Cleveland Brown, Mayor Adam West, in "The

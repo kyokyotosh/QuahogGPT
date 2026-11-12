@@ -20,9 +20,10 @@ Latest commit: `d17c02d`. Uncommitted: v3 promotion, step 5 retrieval, and the `
 | --- | --- | --- | --- |
 | v1 (`checkpoints/quahog_gpt.pt`) | 1.07M | 2.97 | 128-wide, 4 layers, 6000 steps |
 | v2 (`checkpoints/quahog_gpt_v2.pt`) | 3.08M | 2.76 | 192-wide, 6 layers, 6000 steps, about 66 min on CPU |
-| v3 (`checkpoints/quahog_gpt_v3.pt`) | 3.08M | 2.67 | same config as v2, 12000 steps, about 17 min on MPS |
+| v3 (`checkpoints/quahog_gpt_v3.pt`) | 3.08M | 2.67 | same config as v2, 12000 steps, constant LR, about 17 min on MPS |
+| v4 (`checkpoints/quahog_gpt_v4.pt`) | 3.08M | 2.50 | same as v3 plus cosine LR decay (3e-3 to 3e-4), 12000 steps, about 16 min on MPS |
 
-v3 is the current model. Train 2.31 vs val 2.67 at step 12000. Val was still improving at the last checkpoint. `quahog_gpt_v2.pt` is kept for comparison, and `quahog_gpt_v2_6k.pt` is a backup copy of it.
+v4 is the current model: best val 2.50 at step 12000. Train 1.96 vs val 2.50, so the train/val gap is wider than v3's (2.31 vs 2.67). Val was still improving at the last checkpoint. v3 is kept for comparison, `quahog_gpt_v2.pt` as well, and `quahog_gpt_v2_6k.pt` is a backup copy of v2.
 
 Sampling (`sample.py`): temperature 0.8 with top-k 40 gives the most readable output. Temperature 1.0 is more random; temperature 0.5 to 0.6 loops on episode lists.
 
@@ -60,9 +61,9 @@ python step3_bpe.py
 
 ## Next up
 
-1. **Longer or larger run.** v3 was still improving at step 12000. The learning rate is constant (3e-3, no decay); decay is not tried yet.
+1. **Longer run, or a different decay.** v4 was still improving at step 12000 under cosine decay. The train/val gap is widening, so more steps may need more data or dropout.
 2. **More data.** The train/val gap (2.31 vs 2.67) says the model is data-limited. Add wiki categories, after the Fandom license is checked.
-3. **Retrieval.** `rag_sample.py` retrieves one passage every 16 tokens, with a 64-token passage budget (the window is 128 tokens). Measured on 283 held-out pages: plain loss 2.273, grounded 2.242, gain 0.031 ± 0.007 (s.e.). The first retrieved passages match the prompts. Ideas: a bigger passage budget or block size (needs retraining), reranking.
+3. **Retrieval.** `rag_sample.py` retrieves one passage every 16 tokens, with a 64-token passage budget (the window is 128 tokens). On 284 pages from the validation region (last 10% of corpus text), gain = plain loss minus grounded loss: v3 0.038 ± 0.007, v4 0.016 ± 0.007 (s.e.). The gain shrinks as the model improves. Ideas: a bigger passage budget or block size (needs retraining), reranking.
 4. **Fine-tune (LoRA).** Not started. There is no pretrained base model.
 
 ## Known issues
@@ -71,4 +72,5 @@ python step3_bpe.py
 - `sample.py` runs only the two settings `(1.0, None)` and `(0.8, 40)`.
 - Git warns about LF to CRLF on Windows. Harmless.
 - `torch` on Windows prints a NumPy warning. Harmless. `pip install numpy` removes it.
+- The earlier retrieval eval mixed training and validation pages (283 pages, gain 0.031 for v3). The validation-region numbers above replace it.
 - `data/corpus.txt` on this Mac does not reproduce from `data/raw` with the current build code. Same 4676 pages and 4,240,663 characters, different document order. Retrieval reads `data/raw` directly, so it is unaffected. v3 trained on the on-disk corpus.
