@@ -1,26 +1,31 @@
 """Step 3a: download Family Guy wiki pages and turn their wikitext into plain text.
 
-Two stages, so cleaning can be re-run without hitting the wiki again:
-  1. fetch  -> data/raw/pages.json   (title -> raw wikitext)
-  2. clean  -> data/corpus.txt       (plain text, one blank line between pages)
+Usage:
+  python step3_scrape.py fetch all              # 400 pages from the whole wiki
+  python step3_scrape.py fetch Characters       # articles in a category tree
+  python step3_scrape.py build                  # merge every cache -> data/corpus.txt
 
-Wikitext is the wiki's markup language: [[links]], {{templates}}, == headings ==,
-<ref> footnotes, and tables. Models should see prose, not markup.
+Each `fetch` writes data/raw/<source>.json (title -> raw wikitext), so network
+access happens once per source. `build` merges all raw files (deduplicated by
+title) and cleans them. Wikitext is the wiki's markup language: [[links]],
+{{templates}}, == headings ==, <ref> footnotes, and tables. Models should see prose.
 """
 
 import json
 import pathlib
 import re
+import sys
 import time
 import urllib.parse
 import urllib.request
 
 API = "https://familyguy.fandom.com/api.php"
 USER_AGENT = "QuahogGPT-learning-project/0.1 (personal learning project)"
-MAX_PAGES = 400
+MAX_ALL_PAGES = 400
+CATEGORY_DEPTH = 2  # how many levels of subcategories to follow
 BATCH = 50  # MediaWiki allows up to 50 titles per request for non-bot clients
 
-RAW_PATH = pathlib.Path("data/raw/pages.json")
+RAW_DIR = pathlib.Path("data/raw")
 CORPUS_PATH = pathlib.Path("data/corpus.txt")
 
 
@@ -32,7 +37,7 @@ def api(**params):
         return json.load(resp)
 
 
-def list_titles(limit):
+def all_titles(limit):
     """Article titles in the main namespace, skipping redirects."""
     titles, cont = [], {}
     while len(titles) < limit:
@@ -49,6 +54,42 @@ def list_titles(limit):
             break
         cont = data["continue"]
     return titles[:limit]
+
+
+def category_members(category):
+    """Every member of one category (articles and subcategories), following continuation."""
+    members, cont = [], {}
+    while True:
+        data = api(
+            action="query",
+            list="categorymembers",
+            cmtitle=category,
+            cmlimit=500,
+            **cont,
+        )
+        members += data["query"]["categorymembers"]
+        if "continue" not in data:
+            return members
+        cont = data["continue"]
+
+
+def category_titles(root, max_depth=CATEGORY_DEPTH):
+    """Article titles under `root` and its subcategories, up to max_depth levels down."""
+    seen, titles = set(), set()
+    frontier = [f"Category:{root}"]
+    for _ in range(max_depth + 1):
+        next_frontier = []
+        for cat in frontier:
+            if cat in seen:
+                continue
+            seen.add(cat)
+            for m in category_members(cat):
+                if m["ns"] == 0:
+                    titles.add(m["title"])
+                elif m["ns"] == 14:
+                    next_frontier.append(m["title"])
+        frontier = next_frontier
+    return sorted(titles)
 
 
 def fetch_wikitext(titles):
@@ -68,17 +109,23 @@ def fetch_wikitext(titles):
     return pages
 
 
-def fetch_all():
-    titles = list_titles(MAX_PAGES)
-    print(f"listing done: {len(titles)} titles")
+def fetch(source):
+    """Download every page for `source` ("all" or a category name) into data/raw/."""
+    if source == "all":
+        titles = all_titles(MAX_ALL_PAGES)
+    else:
+        titles = category_titles(source)
+    print(f"{source}: {len(titles)} article titles")
     pages = {}
     for i in range(0, len(titles), BATCH):
         pages.update(fetch_wikitext(titles[i : i + BATCH]))
         print(f"fetched {min(i + BATCH, len(titles))}/{len(titles)}")
         time.sleep(0.5)  # be polite to the wiki's servers
-    RAW_PATH.parent.mkdir(parents=True, exist_ok=True)
-    RAW_PATH.write_text(json.dumps(pages, ensure_ascii=False), encoding="utf-8")
-    return pages
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
+    slug = source.lower().replace(" ", "-")
+    path = RAW_DIR / f"{slug}.json"
+    path.write_text(json.dumps(pages, ensure_ascii=False), encoding="utf-8")
+    print(f"saved {len(pages)} pages -> {path}")
 
 
 def clean(wikitext):
@@ -107,21 +154,28 @@ def clean(wikitext):
     return re.sub(r"\n{3,}", "\n\n", text).strip()
 
 
-def build_corpus(pages):
+def build():
+    """Merge all raw caches (deduplicated by title), clean them, write the corpus."""
+    pages = {}
+    for path in sorted(RAW_DIR.glob("*.json")):
+        found = json.loads(path.read_text(encoding="utf-8"))
+        print(f"{path.name}: {len(found)} pages")
+        pages.update(found)
     docs = []
     for title, wikitext in pages.items():
         body = clean(wikitext)
-        if len(body) >= 200:  # skip stubs
+        if len(body) >= 200:  # skip stubs and redirects
             docs.append(f"{title}\n{body}")
     corpus = "\n\n".join(docs)
     CORPUS_PATH.write_text(corpus, encoding="utf-8")
-    print(f"kept {len(docs)}/{len(pages)} pages, {len(corpus):,} characters -> {CORPUS_PATH}")
+    print(f"kept {len(docs)}/{len(pages)} unique pages, {len(corpus):,} characters -> {CORPUS_PATH}")
 
 
 if __name__ == "__main__":
-    if RAW_PATH.exists():
-        pages = json.loads(RAW_PATH.read_text(encoding="utf-8"))
-        print(f"using cached {len(pages)} pages from {RAW_PATH}")
+    if len(sys.argv) == 3 and sys.argv[1] == "fetch":
+        fetch(sys.argv[2])
+    elif len(sys.argv) == 2 and sys.argv[1] == "build":
+        build()
     else:
-        pages = fetch_all()
-    build_corpus(pages)
+        print(__doc__)
+        sys.exit(1)
