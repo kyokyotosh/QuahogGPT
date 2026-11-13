@@ -4,9 +4,9 @@ retrieve.py ranks 200-character passages with BM25. That works for continuing te
 but questions like "Who is Peter Griffin?" pull short passages that merely mention
 the name. This module adds:
 
-  text:     episode plots and episode subpages (Trivia, Goofs, Quotes, References)
-            live inside template fields (`plot`, `contents`), which step3_scrape.clean
-            strips. They are recovered here. Subpages fold into their episode.
+  text:     page text from step3_scrape.page_text, which includes episode plots and
+            episode subpages (Trivia, Goofs, Quotes, References) stored in template
+            fields. Subpages fold into their episode.
   facts:    one document per page with its lead paragraph, its infobox fields as
             sentences (episode air dates, writers, voice actors, ...), and the
             character's debut episode, computed from the episode infoboxes.
@@ -27,13 +27,12 @@ import json
 import re
 
 from retrieve import Index, chunk_page, tokenize
-from step3_scrape import RAW_DIR, clean
+from step3_scrape import RAW_DIR, clean, page_text, parse_box
 
 LEAD_CHARS = 600  # lead paragraph budget in a facts document
 FIELD_CHARS = 200  # per-field budget, so one long infobox field can't crowd out the lead
 MIN_BODY = 200  # same stub threshold as step3_scrape.load_docs
 BOX_TYPES = {"EpisodeTabs", "CharacterBox", "SongBox"}
-TEXT_FIELDS = ("plot", "contents")
 K = 8  # passages per question
 LINK_BONUS = 8.0  # BM25 bonus for passages of pages named in the question
 PER_PAGE = 4  # BM25 passages per page (facts documents not counted)
@@ -63,40 +62,6 @@ def load_raw():
     for path in sorted(RAW_DIR.glob("*.json")):
         pages.update(json.loads(path.read_text(encoding="utf-8")))
     return pages
-
-
-def parse_box(wikitext):
-    """The template at the top of a page as (name, {field: raw value}), or (None, {})."""
-    m = re.match(r"\s*\{\{\s*([\w /]+?)\s*(?=[|\n}])", wikitext)
-    if not m:
-        return None, {}
-    depth, i = 0, m.start()
-    fields, field_start = [], None
-    while i < len(wikitext):
-        pair = wikitext[i : i + 2]
-        if pair in ("{{", "[["):
-            depth += 1
-            i += 2
-            continue
-        if pair in ("}}", "]]"):
-            depth -= 1
-            i += 2
-            if depth == 0:
-                if field_start is not None:
-                    fields.append(wikitext[field_start : i - 2])
-                break
-            continue
-        if wikitext[i] == "|" and depth == 1:
-            if field_start is not None:
-                fields.append(wikitext[field_start:i])
-            field_start = i + 1
-        i += 1
-    out = {}
-    for f in fields:
-        key, sep, value = f.partition("=")
-        if sep:
-            out[key.strip().lower()] = value.strip()
-    return m.group(1).strip(), out
 
 
 def plain(value, limit=None):
@@ -131,13 +96,6 @@ def parse_date(text):
         except ValueError:
             pass
     return None
-
-
-def page_text(wikitext, fields):
-    """Readable text of a page, including template text fields that clean() drops."""
-    parts = [clean(fields[k]) for k in TEXT_FIELDS if fields.get(k, "").strip()]
-    parts.append(clean(wikitext))
-    return "\n\n".join(p for p in parts if p)
 
 
 def lead(body):

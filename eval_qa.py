@@ -1,4 +1,4 @@
-"""Score ask.py on the held-out questions in data/qa/test.jsonl.
+"""Score a question-answering reader on the held-out questions in data/qa/test.jsonl.
 
 A prediction is correct when it contains any accepted answer, after lowercasing and
 dropping punctuation and articles. Reports accuracy overall and per question kind,
@@ -8,6 +8,7 @@ Usage:
     .venv-mlx/bin/python eval_qa.py --out logs_qa_base.jsonl
     .venv-mlx/bin/python eval_qa.py --no-retrieval --out logs_qa_norag.jsonl
     .venv-mlx/bin/python eval_qa.py --adapter adapters/qa --out logs_qa_lora.jsonl
+    .venv/bin/python eval_qa.py --reader quahog --ckpt checkpoints/quahog_qa_v8.pt --out logs_qa_quahog.jsonl
 """
 
 import argparse
@@ -17,8 +18,6 @@ import math
 import pathlib
 import re
 import time
-
-from ask import QA
 
 TEST = pathlib.Path("data/qa/test.jsonl")
 
@@ -43,7 +42,9 @@ def acc(flags):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--adapter", default=None)
+    parser.add_argument("--reader", choices=["qwen", "quahog"], default="qwen")
+    parser.add_argument("--adapter", default=None, help="qwen: LoRA adapter directory")
+    parser.add_argument("--ckpt", default="checkpoints/quahog_qa_v8.pt", help="quahog: checkpoint")
     parser.add_argument("--no-retrieval", action="store_true")
     parser.add_argument("--out", required=True)
     parser.add_argument("--limit", type=int, default=None)
@@ -51,7 +52,14 @@ def main():
 
     items = [json.loads(line) for line in TEST.read_text(encoding="utf-8").splitlines()]
     items = items[: args.limit] if args.limit else items
-    qa = QA(adapter=args.adapter, retrieval=not args.no_retrieval)
+    if args.reader == "qwen":  # imported here so each reader only needs its own venv
+        from ask import QA
+
+        qa = QA(adapter=args.adapter, retrieval=not args.no_retrieval)
+    else:
+        from quahog_qa import QuahogQA
+
+        qa = QuahogQA(args.ckpt)
     kinds = collections.defaultdict(list)
     start = time.time()
     with open(args.out, "w", encoding="utf-8") as fh:

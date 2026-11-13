@@ -54,6 +54,31 @@ DEBUT = [
     "What was {t}'s first episode?",
 ]
 SONG = ['Which episode features the song "{t}"?', 'In what episode is the song "{t}" sung?']
+TEMPLATES = {**EPISODE, **CHARACTER, "debut": DEBUT, "song_episode": SONG}  # kind -> phrasings
+
+
+def structured_reply(item, facts):
+    """A one-sentence answer for a structured item, used as a training target."""
+    t, a = item["page"], item["answers"]
+    kind = item["kind"]
+    if kind == "air_date":
+        return f'"{t}" first aired on {a[0]}.'
+    if kind == "writer":
+        return f'"{t}" was written by {" and ".join(a)}.'
+    if kind == "director":
+        return f'"{t}" was directed by {" and ".join(a)}.'
+    if kind == "season":
+        return f'"{t}" is from {a[0].lower()} of Family Guy.'
+    if kind == "voice":
+        return f"{t} is voiced by {a[0]}."
+    if kind == "full_name":
+        return f"{t}'s full name is {a[0]}."
+    if kind == "song_episode":
+        return f'"{t}" is from the episode "{a[0]}".'
+    if kind == "debut":
+        ep, date = facts.debuts[t]
+        return f'{t} first appeared in the episode "{ep}", which first aired on {date.strftime("%B")} {date.day}, {date.year}.'
+    raise ValueError(kind)
 
 
 def split_of(page):

@@ -34,14 +34,13 @@ class Head(nn.Module):
         self.dropout = nn.Dropout(cfg.dropout)
 
     def forward(self, x):
-        B, T, C = x.shape
         k = self.key(x)  # (B, T, head_size): what each position offers
         q = self.query(x)  # (B, T, head_size): what each position is looking for
-        wei = q @ k.transpose(-2, -1) * k.shape[-1] ** -0.5  # (B, T, T) scaled affinities
-        wei = wei.masked_fill(self.tril[:T, :T] == 0, float("-inf"))  # block future positions
-        wei = self.dropout(F.softmax(wei, dim=-1))  # each row sums to 1
         v = self.value(x)  # (B, T, head_size): what each position contributes
-        return wei @ v
+        # softmax(q @ k^T / sqrt(head_size)), future positions masked, dropout, then @ v.
+        # The fused kernel computes exactly that, faster and with less memory at long T.
+        p = self.dropout.p if self.training else 0.0
+        return F.scaled_dot_product_attention(q, k, v, is_causal=True, dropout_p=p)
 
 
 class MultiHeadAttention(nn.Module):

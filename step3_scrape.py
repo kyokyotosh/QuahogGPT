@@ -28,6 +28,7 @@ BATCH = 50  # MediaWiki allows up to 50 titles per request for non-bot clients
 
 RAW_DIR = pathlib.Path("data/raw")
 CORPUS_PATH = pathlib.Path("data/corpus.txt")
+TEXT_FIELDS = ("plot", "contents")  # template fields that hold page text (episode plots, subpages)
 
 
 def api(**params):
@@ -157,6 +158,47 @@ def clean(wikitext):
     return re.sub(r"\n{3,}", "\n\n", text).strip()
 
 
+def parse_box(wikitext):
+    """The template at the top of a page as (name, {field: raw value}), or (None, {})."""
+    m = re.match(r"\s*\{\{\s*([\w /]+?)\s*(?=[|\n}])", wikitext)
+    if not m:
+        return None, {}
+    depth, i = 0, m.start()
+    fields, field_start = [], None
+    while i < len(wikitext):
+        pair = wikitext[i : i + 2]
+        if pair in ("{{", "[["):
+            depth += 1
+            i += 2
+            continue
+        if pair in ("}}", "]]"):
+            depth -= 1
+            i += 2
+            if depth == 0:
+                if field_start is not None:
+                    fields.append(wikitext[field_start : i - 2])
+                break
+            continue
+        if wikitext[i] == "|" and depth == 1:
+            if field_start is not None:
+                fields.append(wikitext[field_start:i])
+            field_start = i + 1
+        i += 1
+    out = {}
+    for f in fields:
+        key, sep, value = f.partition("=")
+        if sep:
+            out[key.strip().lower()] = value.strip()
+    return m.group(1).strip(), out
+
+
+def page_text(wikitext, fields):
+    """Readable text of a page, including template text fields that clean() drops."""
+    parts = [clean(fields[k]) for k in TEXT_FIELDS if fields.get(k, "").strip()]
+    parts.append(clean(wikitext))
+    return "\n\n".join(p for p in parts if p)
+
+
 def load_docs():
     """Unique cleaned pages as (title, body), in a fixed order. Stubs and redirects are dropped."""
     pages = {}
@@ -166,7 +208,7 @@ def load_docs():
         pages.update(found)
     docs = []
     for title, wikitext in pages.items():
-        body = clean(wikitext)
+        body = page_text(wikitext, parse_box(wikitext)[1])
         if len(body) >= 200:  # skip stubs and redirects
             docs.append((title, body))
     return docs, len(pages)

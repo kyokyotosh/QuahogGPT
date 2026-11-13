@@ -18,6 +18,7 @@ import pathlib
 import random
 
 from ask import messages
+from build_qa import structured_reply
 from eval_qa import norm
 from qa_retrieve import load_retriever
 
@@ -32,29 +33,6 @@ NOT_SURE = "I'm not sure. The wiki excerpts I found don't say."
 def contains(passages, answers):
     ctx = f" {norm(' '.join(f'{t} {x}' for t, x in passages))} "
     return any(f" {norm(a)} " in ctx for a in answers if norm(a))
-
-
-def structured_reply(item, facts):
-    t, a = item["page"], item["answers"]
-    kind = item["kind"]
-    if kind == "air_date":
-        return f'"{t}" first aired on {a[0]}.'
-    if kind == "writer":
-        return f'"{t}" was written by {" and ".join(a)}.'
-    if kind == "director":
-        return f'"{t}" was directed by {" and ".join(a)}.'
-    if kind == "season":
-        return f'"{t}" is from {a[0].lower()} of Family Guy.'
-    if kind == "voice":
-        return f"{t} is voiced by {a[0]}."
-    if kind == "full_name":
-        return f"{t}'s full name is {a[0]}."
-    if kind == "song_episode":
-        return f'"{t}" is from the episode "{a[0]}".'
-    if kind == "debut":
-        ep, date = facts.debuts[t]
-        return f'{t} first appeared in the episode "{ep}", which first aired on {date.strftime("%B")} {date.day}, {date.year}.'
-    raise ValueError(kind)
 
 
 def main():

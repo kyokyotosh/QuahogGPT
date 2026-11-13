@@ -23,10 +23,15 @@ parser.add_argument("--n-embd", type=int, default=192)
 parser.add_argument("--n-head", type=int, default=6)
 parser.add_argument("--n-layer", type=int, default=6)
 parser.add_argument("--max-iters", type=int, default=12000)
+parser.add_argument("--block-size", type=int, default=128)
+parser.add_argument("--batch-size", type=int, default=32)
+parser.add_argument("--lr", type=float, default=3e-3, help="peak learning rate")
+parser.add_argument("--tokenizer", default="data/tokenizer.json")
+parser.add_argument("--corpus", default="data/corpus.txt")
 args = parser.parse_args()
 CKPT_PATH = pathlib.Path(args.ckpt)
-CORPUS_PATH = pathlib.Path("data/corpus.txt")
-TOKENIZER_PATH = pathlib.Path("data/tokenizer.json")
+CORPUS_PATH = pathlib.Path(args.corpus)
+TOKENIZER_PATH = pathlib.Path(args.tokenizer)
 
 device = "mps" if torch.backends.mps.is_available() else "cpu"
 
@@ -39,11 +44,11 @@ split = int(0.9 * len(data))
 train_data, val_data = data[:split], data[split:]
 print(f"{len(data):,} tokens  (train {len(train_data):,}, val {len(val_data):,})")
 
-# Hyperparameters. Corpus is ~1.7M tokens. v1 (128-wide, 4-layer, 1.07M params) reached
-# val 2.97 at 6000 steps and was still improving; this model is ~2.6M params, trained on CPU.
-cfg = GPTConfig(vocab_size=len(vocab), block_size=128, n_embd=args.n_embd, n_head=args.n_head, n_layer=args.n_layer, dropout=0.2)
-batch_size = 32
-lr = 3e-3  # peak LR; cosine decays to 10% of peak at max_iters
+# Hyperparameters. Defaults are v5/v7: 192-wide, 6 layers, 128-token window, batch 32,
+# peak LR 3e-3. The v8 QA model uses a 512-token window and a 4096-token vocabulary.
+cfg = GPTConfig(vocab_size=len(vocab), block_size=args.block_size, n_embd=args.n_embd, n_head=args.n_head, n_layer=args.n_layer, dropout=0.2)
+batch_size = args.batch_size
+lr = args.lr  # peak LR; cosine decays to 10% of peak at max_iters
 weight_decay = 0.1
 max_iters = args.max_iters
 eval_interval = 250
@@ -86,7 +91,7 @@ for it in range(max_iters + 1):
         marker = ""
         if losses["val"] < best_val:
             best_val = losses["val"]
-            torch.save({"config": cfg.__dict__, "model": model.state_dict()}, CKPT_PATH)
+            torch.save({"config": cfg.__dict__, "model": model.state_dict(), "tokenizer": str(TOKENIZER_PATH)}, CKPT_PATH)
             marker = "  (saved)"
         print(f"step {it:5d}  train {losses['train']:.4f}  val {losses['val']:.4f}{marker}")
     if it == max_iters:

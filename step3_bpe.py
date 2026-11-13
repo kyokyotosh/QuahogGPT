@@ -12,6 +12,7 @@ Text is split into words first (the regex below), so merges never cross
 word boundaries. This mirrors GPT-2's tokenizer.
 """
 
+import argparse
 import collections
 import json
 import pathlib
@@ -40,28 +41,47 @@ def merge_pair(ids, pair, new_id):
 
 
 def train(text, num_merges):
-    # Count each distinct piece once; the merge loop works on unique pieces, weighted by count.
-    words = collections.Counter(tuple(p.encode("utf-8")) for p in PIECE.findall(text))
+    """Learn `num_merges` merges. Pair counts are updated incrementally: after a merge,
+    only the words containing the merged pair are recounted, which keeps large
+    vocabularies (thousands of merges) fast."""
+    counts = collections.Counter(tuple(p.encode("utf-8")) for p in PIECE.findall(text))
+    words = [list(w) for w in counts]  # unique pieces as token lists
+    freq = list(counts.values())  # how often each unique piece occurs
+    pair_counts = collections.Counter()
+    where = collections.defaultdict(set)  # pair -> indices of words that contain it
+    for i, w in enumerate(words):
+        for pair in zip(w, w[1:]):
+            pair_counts[pair] += freq[i]
+            where[pair].add(i)
     merges = {}  # (token_a, token_b) -> new_token_id, in the order they were learned
     for _ in range(num_merges):
-        pair_counts = collections.Counter()
-        for word, count in words.items():
-            for pair in zip(word, word[1:]):
-                pair_counts[pair] += count
         if not pair_counts:
             break
         best = max(pair_counts, key=pair_counts.get)
         new_id = 256 + len(merges)
         merges[best] = new_id
-        words = collections.Counter(
-            {merge_pair(w, best, new_id): c for w, c in words.items()}
-        )
+        for i in where.pop(best):
+            w = words[i]
+            for pair in zip(w, w[1:]):  # remove this word's old pairs
+                pair_counts[pair] -= freq[i]
+                if pair_counts[pair] <= 0:
+                    del pair_counts[pair]
+            w = list(merge_pair(w, best, new_id))
+            words[i] = w
+            for pair in zip(w, w[1:]):  # add its new pairs
+                pair_counts[pair] += freq[i]
+                where[pair].add(i)
     return merges
 
 
-def encode(text, merges):
+def encode(text, merges, cache=None):
+    """Token ids for `text`. Pass a dict as `cache` to reuse results for repeated pieces."""
+    cache = {} if cache is None else cache
     ids = []
     for piece in PIECE.findall(text):
+        if piece in cache:
+            ids.extend(cache[piece])
+            continue
         word = list(piece.encode("utf-8"))
         # Apply merges in the order they were learned. Lower id = learned earlier.
         while len(word) >= 2:
@@ -70,6 +90,7 @@ def encode(text, merges):
             if pair not in merges:
                 break
             word = list(merge_pair(word, pair, merges[pair]))
+        cache[piece] = word
         ids.extend(word)
     return ids
 
@@ -87,15 +108,18 @@ def decode(ids, vocab):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--merges", type=int, default=NUM_MERGES, help="vocab = 256 + merges")
+    parser.add_argument("--out", default=str(TOKENIZER_PATH))
+    args = parser.parse_args()
+    out_path = pathlib.Path(args.out)
     text = CORPUS_PATH.read_text(encoding="utf-8")
     print(f"corpus: {len(text):,} characters")
 
-    merges = train(text, NUM_MERGES)
+    merges = train(text, args.merges)
     vocab = build_vocab(merges)
-    TOKENIZER_PATH.write_text(
-        json.dumps([[a, b, idx] for (a, b), idx in merges.items()]), encoding="utf-8"
-    )
-    print(f"learned {len(merges)} merges, vocab size {len(vocab)} -> {TOKENIZER_PATH}")
+    out_path.write_text(json.dumps([[a, b, idx] for (a, b), idx in merges.items()]), encoding="utf-8")
+    print(f"learned {len(merges)} merges, vocab size {len(vocab)} -> {out_path}")
 
     ids = encode(text, merges)
     print(f"tokens: {len(ids):,}  chars per token: {len(text) / len(ids):.2f}")
