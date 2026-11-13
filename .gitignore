@@ -5,3 +5,6 @@ checkpoints/
 data/raw/
 data/corpus.txt
 data/tokenizer.json
+.venv-mlx/
+adapters/
+data/qa/lora/

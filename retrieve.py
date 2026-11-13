@@ -52,8 +52,8 @@ class Index:
                 self.postings[term].append((i, tf))
         self.avg_len = sum(self.doc_len) / self.n
 
-    def search(self, query, k=1):
-        """Top-k passages for `query`, best first. Empty if no query term appears in the index."""
+    def scores(self, query):
+        """BM25 score of every passage that shares a term with `query`: {passage_id: score}."""
         scores = collections.defaultdict(float)
         for term in set(tokenize(query)):
             postings = self.postings.get(term)
@@ -64,7 +64,11 @@ class Index:
             for i, tf in postings:
                 norm = K1 * (1 - B + B * self.doc_len[i] / self.avg_len)
                 scores[i] += idf * tf * (K1 + 1) / (tf + norm)
-        best = sorted(scores.items(), key=lambda item: -item[1])[:k]
+        return scores
+
+    def search(self, query, k=1):
+        """Top-k passages for `query`, best first. Empty if no query term appears in the index."""
+        best = sorted(self.scores(query).items(), key=lambda item: -item[1])[:k]
         return [self.passages[i] for i, _ in best]
 
 
