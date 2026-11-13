@@ -10,9 +10,10 @@ Where the project stands, so you can pick it up on the Mac.
 | 2. Tiny GPT | `step2_gpt.py` | done (`9b5867a`) |
 | 3. Scrape + BPE | `step3_scrape.py`, `step3_bpe.py` | done (`7ce6c00`, `ff97738`, `8c18201`, `29e6f14`) |
 | 4. Train on corpus | `gpt.py`, `step4_train.py`, `sample.py` | done (`da95e5c`, `29e6f14`, `d17c02d`) |
-| 5. Retrieval | `retrieve.py`, `rag_sample.py` | done (BM25 over wiki passages); LoRA fine-tune not started |
+| 5. Retrieval | `retrieve.py`, `rag_sample.py` | done (BM25 over wiki passages) |
+| 6. Question answering | `qa_retrieve.py`, `ask.py`, `eval_qa.py`, `build_qa.py`, `build_lora_data.py`, `lora_config.yaml` | done: retrieval + Qwen2.5-3B-Instruct reader with a LoRA adapter. See "Question answering" |
 
-Latest commit: see `git log` (v7_long promotion, sampler-faithful eval).
+Latest commit: see `git log` (question answering with a LoRA reader).
 
 ## Results
 
@@ -44,7 +45,8 @@ All of this is gitignored. A fresh clone does not have it. Copy `data/` and `che
 ## Environment
 
 - Windows: `.venv` with Python 3.13, `torch 2.15.0+cpu`. The RX 6700 XT is not usable for PyTorch here (HIP SDK unsupported on Windows).
-- Mac: M3 Pro. Use the MPS backend. Create a venv with `python3 -m venv .venv`, then `pip install -r requirements.txt`.
+- Mac: M3 Pro, 36 GB. Use the MPS backend. Create a venv with `python3 -m venv .venv`, then `pip install -r requirements.txt`.
+- Question answering runs in a second venv, because MLX has no wheels for Python 3.15: `/opt/homebrew/bin/python3.12 -m venv .venv-mlx`, then `.venv-mlx/bin/pip install -r requirements-mlx.txt`. The first run downloads `mlx-community/Qwen2.5-3B-Instruct-4bit` (about 2 GB) to the Hugging Face cache.
 
 ## Mac setup
 
@@ -63,6 +65,42 @@ python step3_scrape.py build
 python step3_bpe.py
 ```
 
+## Question answering
+
+```bash
+.venv-mlx/bin/python ask.py "Who is Peter Griffin?" "Where is Quahog located?" "When did Joe Swanson first appear?"
+```
+
+Pipeline: question → `qa_retrieve.py` (8 excerpts) → Qwen2.5-3B-Instruct (4-bit, MLX) with the LoRA adapter `adapters/qa` → answer. `--no-adapter` uses base Qwen, `--no-retrieval` skips the excerpts, `--show-passages` prints them.
+
+Retrieval (`qa_retrieve.py`):
+- Recovers text that `step3_scrape.clean` drops: the 489 episode plots (`plot` field of `{{EpisodeTabs}}`) and 1,883 episode subpages (Trivia, Goofs, Quotes, References in `{{EpisodeTabs/...}}` `contents` fields). Subpages fold into their episode. 61,096 passages (`retrieve.py` has 29,493).
+- One facts document per page: lead paragraph, infobox fields as sentences (air date, writers, director, voice actor, full name, ...), and the debut episode, computed as the earliest-aired episode whose infobox lists the page.
+- Entity linking: titles, title bases ("Quahog" for "Quahog, Rhode Island"), redirects, and character short names found in the question. Facts of up to 3 linked pages come first, then BM25 passages with a +8 bonus for linked pages, at most 4 per page. Settings were tuned on train questions.
+- Recall@8 (gold answer present in the excerpts): 0.992 on the test set; the old BM25 retrieval had 0.792.
+
+Data (`data/qa/`, committed except `lora/`):
+- Split by page: `crc32(title) % 10 == 0` pages are test, the rest train. No question about a test page is trained on.
+- `structured.jsonl`: 5,560 infobox questions with exact gold answers (`python build_qa.py`).
+- `generated_test.jsonl` (223) and `generated_train.jsonl` (2,373): questions written by an LLM (the coding assistant's model) from wiki passages, with short gold answers, accepted aliases, and (train) a 1-2 sentence reply. Not reproducible by a script; keep these files.
+- `test.jsonl`: 385 test questions (up to 25 per structured kind, plus the 223 generated).
+- `lora/`: chat-format training data (`build_lora_data.py`): 5,327 train and 150 valid examples, each the exact prompt `ask.py` sends; 300 teach "I'm not sure" when the answer is absent from the excerpts.
+
+LoRA (`lora_config.yaml`): rank 16, 16 layers, batch 4, lr 1e-4, prompt masked, 1,330 iterations (one epoch). About 4 hours on the M3 Pro. Val loss 2.279 → 0.435 (step 1200), 0.438 at the end. Retrain with `.venv-mlx/bin/python -m mlx_lm lora -c lora_config.yaml` (writes `adapters/qa`, gitignored). Log: `logs_lora_train.txt`.
+
+Results on the 385 test questions (`eval_qa.py`; correct = the answer contains a gold alias):
+
+| setup | accuracy | log |
+| --- | --- | --- |
+| base Qwen, no retrieval | 0.119 ± 0.017 | `logs_qa_norag.jsonl` |
+| base Qwen + old BM25 retrieval | 0.738 ± 0.022 | `logs_qa_base.jsonl` |
+| base Qwen + `qa_retrieve.py` | 0.940 ± 0.012 | `logs_qa_base_v2.jsonl` (before the comma-title linking fix) |
+| LoRA + `qa_retrieve.py` | 0.971 ± 0.008 | `logs_qa_lora.jsonl`. Shipped default. Before the comma-title linking fix: 0.966 ± 0.009 |
+
+LoRA vs base, paired on the same questions (both before the linking fix): +0.026 ± 0.012 (16 questions only the LoRA gets right, 6 only base). Base wrote "the excerpts"/"information provided" in 25 answers; the LoRA in none. The LoRA answers "I'm not sure" to questions outside the wiki (e.g. "Who won the 2022 World Cup?").
+
+Remaining errors: some are grader artifacts (correct answers phrased differently; Meg's voice gold is the infobox's first entry, Rachael MacFarlane). The real ones are hard trivia where the reader picks or invents a plausible wrong detail.
+
 ## Next up
 
 1. **Same-split comparison (done).** Result above. Script: `eval_same_split.py` (committed). Run it with `--old-corpus` when a checkpoint was trained on an older corpus.
@@ -74,7 +112,7 @@ python step3_bpe.py
    - Duplicated text is not the main driver: only 4.5% of pages share an 8-word run with the retrieved text.
    - Sampler-query check (`eval_sampler_query.py`, rewritten to match `rag_sample.py` exactly: per-token windows, 64-token context, no 49-token cap). Decision: keep first-fit. Results: v5 first-fit +0.0085 ± 0.0046, v7_wide −0.0017 ± 0.0045, v7_long +0.0042 ± 0.0056; truncated: +0.0056 ± 0.0064, +0.0034 ± 0.0068, +0.0077 ± 0.0075. The variants are not separable on paired data. First-fit keeps whole passages (no mid-sentence cuts). That is a design choice, not a measured win. The earlier −0.013 result used the old 49-token cap and is superseded.
    - Open: sample quality. The check above mirrors the sampler's query and window, but it does not score sampled text.
-4. **Fine-tune (LoRA).** Not started. There is no pretrained base model.
+4. **Question answering (done).** See "Question answering". Open: the QuahogGPT pretraining corpus also misses the episode plots and subpages; rebuilding it would invalidate the same-split comparisons above. A larger reader (Qwen2.5-7B-Instruct 4-bit fits in 36 GB) or a second LoRA epoch are the next things to try.
 
 ## Known issues
 

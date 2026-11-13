@@ -116,6 +116,14 @@ def link_targets(value):
     return [t.strip() for t in re.findall(r"\[\[([^|\]#]+)", value)]
 
 
+def alias_key(text, lower=True):
+    """Words of a title or question joined by single spaces; punctuation such as commas,
+    colons, and quotes is dropped so "Peter, Peter, Pumpkin Cheater" matches either way."""
+    words = [w.strip(".'") for w in re.findall(r"[\w.'&!-]+", text.replace("\u2019", "'"))]
+    text = " ".join(w for w in words if w)
+    return text.lower() if lower else text
+
+
 def parse_date(text):
     for fmt in ("%B %d, %Y", "%B %Y", "%Y"):
         try:
@@ -273,7 +281,7 @@ class Facts:
         return " ".join(p for p in parts if p)
 
     def _aliases(self):
-        """Lowercased alias -> page title. Exact titles win over derived aliases."""
+        """Alias key (see alias_key) -> page title. Exact titles win over derived aliases."""
         exact, derived = {}, collections.defaultdict(list)
         for t in self.pages:
             exact[t.lower()] = t
@@ -291,8 +299,8 @@ class Facts:
         def rank(t):  # prefer episodes and characters, then longer pages
             return (self.boxes[t][0] in ("EpisodeTabs", "CharacterBox"), len(self.bodies[t]))
 
-        aliases = {a: max(ts, key=rank) for a, ts in derived.items()}
-        aliases.update(exact)
+        aliases = {alias_key(a): max(ts, key=rank) for a, ts in derived.items()}
+        aliases.update({alias_key(a): t for a, t in exact.items()})
         for a in STOP_ALIASES:
             aliases.pop(a, None)
         return {a: t for a, t in aliases.items() if len(a) >= 3}
@@ -314,8 +322,7 @@ class Retriever:
     def link(self, question):
         """Page titles named in the question, longest match first, without overlaps."""
         question = re.sub(r"\bfamily guy('s)?\b", " ", question.replace("\u2019", "'"), flags=re.I)
-        words = re.findall(r"[\w.'&!-]+", question)
-        words = [w.strip(".'") for w in words]
+        words = alias_key(question, lower=False).split()
         found, used = [], set()
         for n in range(min(self.max_alias_words, len(words)), 0, -1):
             for i in range(len(words) - n + 1):
