@@ -1,0 +1,11 @@
+/Users/matheuscolombo/Desktop/QuahogGPT/.venv/lib/python3.15/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /Users/runner/work/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+train 21280, valid 1082, dropped 457 (answer not in trimmed excerpts)
+step 0  valid 3.0998
+epoch 1  step 1330  train 0.7314  valid 0.7162  (saved)
+epoch 2  step 2660  train 0.4185  valid 0.6408  (saved)
+epoch 3  step 3990  train 0.1967  valid 0.5713  (saved)
+epoch 4  step 5320  train 0.0633  valid 0.5603  (saved)
+epoch 5  step 6650  train 0.1114  valid 0.5488  (saved)
+epoch 6  step 7980  train 0.0915  valid 0.5448  (saved)
+best valid loss 0.5448 -> checkpoints/quahog_qa_v8c.pt

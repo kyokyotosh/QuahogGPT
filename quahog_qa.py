@@ -26,7 +26,7 @@ from gpt import GPT, GPTConfig
 from qa_retrieve import load_retriever
 from step3_bpe import build_vocab, decode, encode
 
-CKPT = "checkpoints/quahog_qa_v8.pt"
+CKPT = "checkpoints/quahog_qa_v8c.pt"
 K = 3  # excerpts per question; the 512-token window holds about three
 MAX_DOCS = 1  # facts documents among them (tuned on train questions; more crowd out passages)
 MAX_ANSWER = 64  # tokens reserved for the reply

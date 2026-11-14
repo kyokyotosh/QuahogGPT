@@ -8,7 +8,7 @@ Usage:
     .venv-mlx/bin/python eval_qa.py --out logs_qa_base.jsonl
     .venv-mlx/bin/python eval_qa.py --no-retrieval --out logs_qa_norag.jsonl
     .venv-mlx/bin/python eval_qa.py --adapter adapters/qa --out logs_qa_lora.jsonl
-    .venv/bin/python eval_qa.py --reader quahog --ckpt checkpoints/quahog_qa_v8.pt --out logs_qa_quahog.jsonl
+    .venv/bin/python eval_qa.py --reader quahog --ckpt checkpoints/quahog_qa_v8c.pt --out logs_qa_quahog_v8c.jsonl
 """
 
 import argparse
@@ -44,7 +44,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--reader", choices=["qwen", "quahog"], default="qwen")
     parser.add_argument("--adapter", default=None, help="qwen: LoRA adapter directory")
-    parser.add_argument("--ckpt", default="checkpoints/quahog_qa_v8.pt", help="quahog: checkpoint")
+    parser.add_argument("--ckpt", default="checkpoints/quahog_qa_v8c.pt", help="quahog: checkpoint")
     parser.add_argument("--no-retrieval", action="store_true")
     parser.add_argument("--out", required=True)
     parser.add_argument("--limit", type=int, default=None)
