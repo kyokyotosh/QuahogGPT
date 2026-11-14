@@ -6,7 +6,9 @@ comes from step4_train.py on the Family Guy corpus.
 Training examples (train pages only; see build_qa.py for the page split):
   - structured infobox questions, each rewritten with every phrasing in
     build_qa.TEMPLATES, with template replies (build_qa.structured_reply)
-  - generated passage questions with their 1-2 sentence replies
+  - generated questions (generated_train.jsonl, generated_train_2.jsonl): "who is"
+    questions keep their 1-2 sentence reply; passage questions use the short gold
+    answer, which an 8.5M-parameter model learns to copy far more reliably
 Each example is quahog_qa.prompt_ids(...) followed by " <reply>\\n". The loss covers the
 reply tokens only. Examples whose trimmed excerpts do not contain a gold answer are
 dropped, so the model is never taught to answer from nothing.
@@ -30,7 +32,7 @@ import torch.nn.functional as F
 
 from build_qa import TEMPLATES, structured_reply
 from eval_qa import norm
-from quahog_qa import K, MAX_ANSWER, load_model, prompt_ids
+from quahog_qa import K, MAX_ANSWER, MAX_DOCS, load_model, prompt_ids
 from qa_retrieve import load_retriever
 
 QA_DIR = pathlib.Path("data/qa")
@@ -50,10 +52,12 @@ def qa_items(facts):
         reply = structured_reply(x, facts)
         for template in TEMPLATES[x["kind"]]:
             items.append((template.format(t=x["page"]), reply, x["answers"], x["page"]))
-    for line in (QA_DIR / "generated_train.jsonl").open(encoding="utf-8"):
-        x = json.loads(line)
-        assert x["split"] == "train"
-        items.append((x["question"], x["reply"], x["answers"], x["page"]))
+    for name in ("generated_train.jsonl", "generated_train_2.jsonl"):
+        for line in (QA_DIR / name).open(encoding="utf-8"):
+            x = json.loads(line)
+            assert x["split"] == "train"
+            reply = x["reply"] if x["kind"] == "who_is" else x["answers"][0]
+            items.append((x["question"], reply, x["answers"], x["page"]))
     return items
 
 
@@ -61,7 +65,7 @@ def build_examples(tok, retriever, block_size):
     examples = {"train": [], "valid": []}
     dropped = 0
     for question, reply, answers, page in qa_items(retriever.facts):
-        prompt = prompt_ids(tok, question, retriever.retrieve(question, k=K), block_size)
+        prompt = prompt_ids(tok, question, retriever.retrieve(question, k=K, max_docs=MAX_DOCS), block_size)
         context = f" {norm(tok.decode(prompt))} "
         if not any(f" {norm(a)} " in context for a in answers if norm(a)):
             dropped += 1

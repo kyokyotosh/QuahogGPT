@@ -1,0 +1,117 @@
+/Users/matheuscolombo/Desktop/QuahogGPT/.venv/lib/python3.15/site-packages/torch/_subclasses/functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at /Users/runner/work/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+2,739,454 tokens  (train 2,465,508, val 273,946)
+device: mps
+params: 8,544,768
+step     0  train 8.4811  val 8.4807  (saved)
+step   250  train 5.0653  val 5.1259  (saved)
+step   500  train 4.5495  val 4.6751  (saved)
+step   750  train 4.3257  val 4.4702  (saved)
+step  1000  train 4.1312  val 4.3243  (saved)
+step  1250  train 4.0046  val 4.2489  (saved)
+step  1500  train 3.9044  val 4.1236  (saved)
+step  1750  train 3.7865  val 4.0388  (saved)
+step  2000  train 3.7007  val 3.9877  (saved)
+step  2250  train 3.6274  val 3.9373  (saved)
+step  2500  train 3.5625  val 3.8958  (saved)
+step  2750  train 3.5106  val 3.8449  (saved)
+step  3000  train 3.4706  val 3.8137  (saved)
+step  3250  train 3.3947  val 3.7819  (saved)
+step  3500  train 3.3029  val 3.7348  (saved)
+step  3750  train 3.2611  val 3.6842  (saved)
+step  4000  train 3.2326  val 3.6864
+step  4250  train 3.1771  val 3.6705  (saved)
+step  4500  train 3.1186  val 3.6529  (saved)
+step  4750  train 3.0964  val 3.6267  (saved)
+step  5000  train 3.0819  val 3.5962  (saved)
+step  5250  train 3.0861  val 3.5592  (saved)
+step  5500  train 3.0162  val 3.5643
+step  5750  train 2.9570  val 3.5226  (saved)
+step  6000  train 2.9745  val 3.5762
+step  6250  train 2.9525  val 3.5226
+step  6500  train 2.9468  val 3.5231
+step  6750  train 2.8935  val 3.4650  (saved)
+step  7000  train 2.8714  val 3.4733
+step  7250  train 2.8511  val 3.4878
+step  7500  train 2.8359  val 3.4813
+step  7750  train 2.8089  val 3.4894
+step  8000  train 2.8133  val 3.4753
+step  8250  train 2.7854  val 3.4440  (saved)
+step  8500  train 2.7785  val 3.4756
+step  8750  train 2.7321  val 3.4425  (saved)
+step  9000  train 2.7183  val 3.4564
+step  9250  train 2.6813  val 3.4228  (saved)
+step  9500  train 2.6722  val 3.4181  (saved)
+step  9750  train 2.6637  val 3.3894  (saved)
+step 10000  train 2.6659  val 3.4509
+step 10250  train 2.6424  val 3.3942
+step 10500  train 2.6108  val 3.3903
+step 10750  train 2.5769  val 3.3570  (saved)
+step 11000  train 2.5786  val 3.4074
+step 11250  train 2.5483  val 3.3683
+step 11500  train 2.5555  val 3.4053
+step 11750  train 2.5138  val 3.4084
+step 12000  train 2.5083  val 3.4009
+step 12250  train 2.5364  val 3.4129
+step 12500  train 2.4914  val 3.3917
+step 12750  train 2.4517  val 3.3377  (saved)
+step 13000  train 2.4393  val 3.3602
+step 13250  train 2.4488  val 3.3990
+step 13500  train 2.4359  val 3.3634
+step 13750  train 2.4292  val 3.3481
+step 14000  train 2.4349  val 3.3604
+step 14250  train 2.4096  val 3.3806
+step 14500  train 2.3969  val 3.3676
+step 14750  train 2.4101  val 3.3860
+step 15000  train 2.3952  val 3.3434
+step 15250  train 2.3738  val 3.3546
+step 15500  train 2.3410  val 3.3803
+step 15750  train 2.3378  val 3.3603
+step 16000  train 2.3178  val 3.3608
+step 16250  train 2.3545  val 3.3666
+step 16500  train 2.3104  val 3.3436
+step 16750  train 2.2976  val 3.3335  (saved)
+step 17000  train 2.2948  val 3.3639
+step 17250  train 2.2540  val 3.3349
+step 17500  train 2.2924  val 3.3700
+step 17750  train 2.2972  val 3.3346
+step 18000  train 2.2222  val 3.3551
+step 18250  train 2.2555  val 3.3339
+step 18500  train 2.2686  val 3.3650
+step 18750  train 2.2433  val 3.3624
+step 19000  train 2.2306  val 3.3644
+step 19250  train 2.2457  val 3.3422
+step 19500  train 2.2234  val 3.3720
+step 19750  train 2.2173  val 3.3859
+step 20000  train 2.2142  val 3.3582
+
+best val loss: 3.3335
+
+--- prompt: 'Peter' ---
+Peter
+Cleveland Brown says he doesn't like him as a mute. The plan was "au slop as he went to his bowl.
+
+James Hack
+James Hack (born September 26, 1954) is an American actor, born, and singer. After he is portrayed as one of the most starks' most dirty adult singles, he moved in his films The Pornosal, It Might Before Time Happens.
+
+James appears as part of The Pereal in "Brian Does Hollywood". Peter uses a Maury Hilary Swank shoutout acting in "Deep Throats".
+
+Melissa Velpha Parksa A
+
+--- prompt: 'Stewie' ---
+Stewie's Intergalactic Proton-Commous
+Paperback: 479 pages
+Publisher: Harper Paperbacks (with Publishing), Content Union Goes to Die in (register)
+Holy Crap (30 September 13, 1998) - James Camp (Assistant Director
+Supergriffins (20 April 2000) - Director
+A Lot Going On Upstairs (18 April 2000) - Director
+Running Mates (220 May 2001) - Director (director)
+One if by Clam, Two if by Sea (1 August 2001) - Director (as Captain Harmony's Song) - Director (
+
+--- prompt: 'The Griffins live' ---
+The Griffins live stashed at.
+How the scooters note that the car is wheelchair veworld in it.
+Chris comments that the way it was ever his life, Relatives aren't but something smoked and never chew him in an art marker, and it's misinterpots.
+Chris is able to breastbe both the presents who says "Noah Guilty" instead.
+Chris can only be seen having two versions of being senior cars in his car, mentions the three plots of a band from a band of band-one.
+When Peter is watching the rest of the cast of Moonlight, Chris and Meg

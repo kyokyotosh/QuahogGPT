@@ -281,6 +281,7 @@ class Retriever:
         """Page titles named in the question, longest match first, without overlaps."""
         question = re.sub(r"\bfamily guy('s)?\b", " ", question.replace("\u2019", "'"), flags=re.I)
         words = alias_key(question, lower=False).split()
+        cased = any(w[:1].isupper() for w in words[1:])  # the question uses capitals for names
         found, used = [], set()
         for n in range(min(self.max_alias_words, len(words)), 0, -1):
             for i in range(len(words) - n + 1):
@@ -293,21 +294,22 @@ class Retriever:
                     title = self.facts.aliases.get(phrase.lower()[:-2])
                 if not title:
                     continue
-                if n == 1 and not phrase[:1].isupper():
-                    continue  # single common words link only when capitalized
+                capital = any(w[:1].isupper() for w in words[i : i + n])
+                if not capital and (n == 1 or cased):
+                    continue  # "voice" in "voice actor" is not the show "The Voice"
                 found.append((i, title))
                 used |= span
         return list(dict.fromkeys(t for _, t in sorted(found)))
 
-    def retrieve(self, question, k=K):
-        """Up to k (title, text): facts of the first MAX_DOCS pages named in the question,
+    def retrieve(self, question, k=K, max_docs=MAX_DOCS):
+        """Up to k (title, text): facts of the first max_docs pages named in the question,
         then passages by BM25 with a bonus for named pages.
 
         At most per_page passages come from one page, and a passage already contained
         in a chosen facts document is skipped.
         """
         linked = self.link(question)
-        out = [(t, self.facts.docs[t]) for t in linked[:MAX_DOCS]][:k]
+        out = [(t, self.facts.docs[t]) for t in linked[:max_docs]][:k]
         chosen_docs = [text for _, text in out]
         scores = self.index.scores(question)
         for page in linked:
