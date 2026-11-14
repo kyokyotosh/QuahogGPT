@@ -12,6 +12,7 @@ Where the project stands, so you can pick it up on the Mac.
 | 4. Train on corpus | `gpt.py`, `step4_train.py`, `sample.py` | done (`da95e5c`, `29e6f14`, `d17c02d`) |
 | 5. Retrieval | `retrieve.py`, `rag_sample.py` | done (BM25 over wiki passages) |
 | 6. Question answering | `qa_retrieve.py`, `ask.py`, `eval_qa.py`, `build_qa.py`, `build_lora_data.py`, `lora_config.yaml` | done: retrieval + Qwen2.5-3B-Instruct reader with a LoRA adapter. See "Question answering" |
+| 7. Question answering from scratch | `quahog_qa.py`, `qa_train.py`, `step4_train.py` (v8) | done: QuahogGPT v8 pretrained here + QA fine-tune, 0.673 on the QA test. See "Question answering from scratch" |
 
 Latest commit: see `git log` (QuahogGPT-QA: question answering from scratch).
 
