@@ -5,10 +5,10 @@ dropping punctuation and articles. Reports accuracy overall and per question kin
 with a standard error, and writes every prediction to a JSONL file for inspection.
 
 Usage:
-    .venv-mlx/bin/python eval_qa.py --out logs_qa_base.jsonl
-    .venv-mlx/bin/python eval_qa.py --no-retrieval --out logs_qa_norag.jsonl
-    .venv-mlx/bin/python eval_qa.py --adapter adapters/qa --out logs_qa_lora.jsonl
-    .venv/bin/python eval_qa.py --reader quahog --ckpt checkpoints/quahog_qa_v8c.pt --out logs_qa_quahog_v8c.jsonl
+    .venv-mlx/bin/python -m evals.qa --out logs_qa_base.jsonl
+    .venv-mlx/bin/python -m evals.qa --no-retrieval --out logs_qa_norag.jsonl
+    .venv-mlx/bin/python -m evals.qa --adapter adapters/qa --out logs_qa_lora.jsonl
+    .venv/bin/python -m evals.qa --reader quahog --ckpt checkpoints/quahog_qa_v8c.pt --out logs_qa_quahog_v8c.jsonl
 """
 
 import argparse

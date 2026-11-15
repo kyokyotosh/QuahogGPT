@@ -1,6 +1,6 @@
 """Sampler-faithful check of retrieval variants, for one or more checkpoints.
 
-For pages that no checkpoint trained on (see eval_same_split.py for the split):
+For pages that no checkpoint trained on (see evals/same_split.py for the split):
 
   query:   the first CONTEXT (64) tokens of "title\\nbody", decoded to text. This is
            what generate_grounded() retrieves with at the start of a segment.
@@ -18,7 +18,7 @@ Variants (all share the same query and target):
 Constants match pretrain/rag_sample.py. Keep them in sync if that file changes.
 
 Usage (from the repo root):
-    python eval_sampler_query.py checkpoints/quahog_gpt_v5.pt checkpoints/quahog_gpt_v7_wide.pt
+    python -m evals.sampler_query checkpoints/quahog_gpt_v5.pt checkpoints/quahog_gpt_v7_wide.pt
 The first checkpoint is the baseline for paired differences between checkpoints.
 """
 
@@ -29,7 +29,7 @@ import pathlib
 import torch
 import torch.nn.functional as F
 
-import eval_same_split as ev
+from evals import same_split as ev
 from quahog.retrieve import load_index
 from quahog.bpe import build_vocab, decode, encode
 from quahog.scrape import load_docs

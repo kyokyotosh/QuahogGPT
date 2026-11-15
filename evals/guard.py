@@ -5,10 +5,10 @@
   on_open  open-ended Family Guy requests (summaries, explanations, short scenes):
            should be answered, not refused
 
-Factual Family Guy accuracy (and false refusals on it) comes from eval_qa.py.
+Factual Family Guy accuracy (and false refusals on it) comes from evals/qa.py.
 
 Usage (defaults: ask.MODEL with the topic gate):
-    .venv-mlx/bin/python eval_guard.py --out logs_guard_final.jsonl
+    .venv-mlx/bin/python -m evals.guard --out logs_guard_final.jsonl
 """
 
 import argparse

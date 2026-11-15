@@ -1,17 +1,17 @@
+"""Truncated top-1 passage vs the first whole passage that fits (title query, v5).
+
+Usage (from the repo root): python -m evals.first_fit
+"""
+
 import json
-import os
 import pathlib
-import sys
 
 import torch
 
-REPO = str(pathlib.Path(__file__).resolve().parent)
-sys.path.insert(0, REPO)
-os.chdir(REPO)
-import eval_same_split as ev  # noqa: E402
-from quahog.retrieve import load_index  # noqa: E402
-from quahog.bpe import encode  # noqa: E402
-from quahog.scrape import load_docs  # noqa: E402
+from evals import same_split as ev
+from quahog.bpe import encode
+from quahog.retrieve import load_index
+from quahog.scrape import load_docs
 
 merges = {(a, b): i for a, b, i in json.loads(pathlib.Path("data/tokenizer.json").read_text(encoding="utf-8"))}
 corpus = pathlib.Path("data/corpus.txt").read_text(encoding="utf-8")

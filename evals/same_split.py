@@ -1,7 +1,7 @@
 """Compare checkpoints on pages that none of them trained on.
 
 Usage:
-    python eval_same_split.py checkpoints/quahog_gpt_v4.pt checkpoints/quahog_gpt_v5.pt \
+    python -m evals.same_split checkpoints/quahog_gpt_v4.pt checkpoints/quahog_gpt_v5.pt \
         --old-corpus ../quahog_backups/corpus_v4_trained.txt
 
 A page is unseen if it lies in the last 8% of data/corpus.txt (the 90/10 split
