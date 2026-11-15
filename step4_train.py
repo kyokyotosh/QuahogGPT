@@ -12,8 +12,8 @@ import pathlib
 
 import torch
 
-from gpt import GPT, GPTConfig
-from step3_bpe import build_vocab, decode, encode
+from quahog.gpt import GPT, GPTConfig
+from quahog.bpe import build_vocab, decode, encode
 
 torch.manual_seed(1337)
 

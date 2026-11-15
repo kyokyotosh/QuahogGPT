@@ -30,9 +30,9 @@ import torch
 import torch.nn.functional as F
 
 import eval_same_split as ev
-from retrieve import load_index
-from step3_bpe import build_vocab, decode, encode
-from step3_scrape import load_docs
+from quahog.retrieve import load_index
+from quahog.bpe import build_vocab, decode, encode
+from quahog.scrape import load_docs
 
 TOKENIZER_PATH = pathlib.Path("data/tokenizer.json")
 CORPUS_PATH = pathlib.Path("data/corpus.txt")

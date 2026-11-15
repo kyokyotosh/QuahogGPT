@@ -16,22 +16,11 @@ import collections
 import json
 import math
 import pathlib
-import re
 import time
 
+from quahog.metrics import correct
+
 TEST = pathlib.Path("data/qa/test.jsonl")
-
-
-def norm(text):
-    text = text.lower().replace("\u2019", "'")
-    text = re.sub(r"[^\w\s]", " ", text)
-    text = re.sub(r"\b(the|a|an)\b", " ", text)
-    return " ".join(text.split())
-
-
-def correct(prediction, answers):
-    p = f" {norm(prediction)} "
-    return any(f" {norm(a)} " in p for a in answers if norm(a))
 
 
 def acc(flags):

@@ -1,10 +1,10 @@
 """Retrieval for question answering.
 
-retrieve.py ranks 200-character passages with BM25. That works for continuing text,
+quahog/retrieve.py ranks 200-character passages with BM25. That works for continuing text,
 but questions like "Who is Peter Griffin?" pull short passages that merely mention
 the name. This module adds:
 
-  text:     page text from step3_scrape.page_text, which includes episode plots and
+  text:     page text from quahog.scrape.page_text, which includes episode plots and
             episode subpages (Trivia, Goofs, Quotes, References) stored in template
             fields. Subpages fold into their episode.
   facts:    one document per page with its lead paragraph, its infobox fields as
@@ -15,7 +15,7 @@ the name. This module adds:
   fallback: BM25 over all passages and facts documents.
 
 Usage:
-    from qa_retrieve import load_retriever
+    from quahog.qa_retrieve import load_retriever
     r = load_retriever()
     for title, text in r.retrieve("When did Joe Swanson first appear?"):
         ...
@@ -26,12 +26,12 @@ import datetime
 import json
 import re
 
-from retrieve import Index, chunk_page, tokenize
-from step3_scrape import RAW_DIR, clean, page_text, parse_box
+from quahog.retrieve import Index, chunk_page, tokenize
+from quahog.scrape import RAW_DIR, clean, page_text, parse_box
 
 LEAD_CHARS = 600  # lead paragraph budget in a facts document
 FIELD_CHARS = 200  # per-field budget, so one long infobox field can't crowd out the lead
-MIN_BODY = 200  # same stub threshold as step3_scrape.load_docs
+MIN_BODY = 200  # same stub threshold as quahog.scrape.load_docs
 BOX_TYPES = {"EpisodeTabs", "CharacterBox", "SongBox"}
 K = 8  # passages per question
 LINK_BONUS = 8.0  # BM25 bonus for passages of pages named in the question

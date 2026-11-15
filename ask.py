@@ -4,7 +4,7 @@ Two steps per message:
   1. Topic gate: Qwen2.5-3B-Instruct with the LoRA adapter adapters/gate (trained with
      build_gate_data.py + gate_config.yaml) says ON or OFF. OFF -> REFUSAL.
   2. Answer: Qwen3-30B-A3B-Instruct-2507 (4-bit, mixture of experts, about 3B active per
-     token) reads 8 excerpts from qa_retrieve.py and answers.
+     token) reads 8 excerpts from quahog/qa_retrieve.py and answers.
 
 Needs the MLX environment (Python 3.12; MLX has no wheels for the main venv's Python):
     /opt/homebrew/bin/python3.12 -m venv .venv-mlx
@@ -22,7 +22,7 @@ import argparse
 
 from mlx_lm import generate, load
 
-from qa_retrieve import load_retriever
+from quahog.qa_retrieve import load_retriever
 
 MODEL = "mlx-community/Qwen3-30B-A3B-Instruct-2507-4bit"
 GATE_MODEL = "mlx-community/Qwen2.5-3B-Instruct-4bit"

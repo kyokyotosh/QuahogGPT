@@ -8,7 +8,7 @@ The prompt is plain text, shared by training (qa_train.py) and inference:
     Question: <question>
     Answer: <reply>\\n
 
-Excerpts come from qa_retrieve.py (top K, at most MAX_DOCS facts documents). Long
+Excerpts come from quahog/qa_retrieve.py (top K, at most MAX_DOCS facts documents). Long
 excerpts are trimmed so that the prompt plus the reply fits the model's window.
 Generation is greedy, never repeats a 4-token sequence, and stops at the first newline.
 
@@ -22,9 +22,9 @@ import pathlib
 
 import torch
 
-from gpt import GPT, GPTConfig
-from qa_retrieve import load_retriever
-from step3_bpe import build_vocab, decode, encode
+from quahog.gpt import GPT, GPTConfig
+from quahog.qa_retrieve import load_retriever
+from quahog.bpe import build_vocab, decode, encode
 
 CKPT = "checkpoints/quahog_qa_v8c.pt"
 K = 3  # excerpts per question; the 512-token window holds about three

@@ -29,10 +29,10 @@ import pathlib
 import torch
 import torch.nn.functional as F
 
-from gpt import GPT, GPTConfig
-from retrieve import load_index
-from step3_bpe import encode
-from step3_scrape import load_docs
+from quahog.gpt import GPT, GPTConfig
+from quahog.retrieve import load_index
+from quahog.bpe import encode
+from quahog.scrape import load_docs
 
 TOKENIZER_PATH = pathlib.Path("data/tokenizer.json")
 CORPUS_PATH = pathlib.Path("data/corpus.txt")

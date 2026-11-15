@@ -16,7 +16,7 @@ import pathlib
 import random
 
 from ask import gate_messages
-from qa_retrieve import load_retriever
+from quahog.qa_retrieve import load_retriever
 
 QA_DIR = pathlib.Path("data/qa")
 OUT_DIR = QA_DIR / "gate"

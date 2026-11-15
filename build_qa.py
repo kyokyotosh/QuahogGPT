@@ -21,7 +21,7 @@ import pathlib
 import random
 import zlib
 
-from qa_retrieve import Facts, link_targets, load_raw, parse_date, plain
+from quahog.qa_retrieve import Facts, link_targets, load_raw, parse_date, plain
 
 OUT = pathlib.Path("data/qa/structured.jsonl")
 

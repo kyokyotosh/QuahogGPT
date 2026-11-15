@@ -1,9 +1,9 @@
 """Step 3a: download Family Guy wiki pages and turn their wikitext into plain text.
 
 Usage:
-  python step3_scrape.py fetch all              # 400 pages from the whole wiki
-  python step3_scrape.py fetch Characters       # articles in a category tree
-  python step3_scrape.py build                  # merge every cache -> data/corpus.txt
+  python -m quahog.scrape fetch all              # 400 pages from the whole wiki
+  python -m quahog.scrape fetch Characters       # articles in a category tree
+  python -m quahog.scrape build                  # merge every cache -> data/corpus.txt
 
 Each `fetch` writes data/raw/<source>.json (title -> raw wikitext), so network
 access happens once per source. `build` merges all raw files (deduplicated by

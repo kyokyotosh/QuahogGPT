@@ -22,8 +22,8 @@ import random
 
 from ask import REFUSAL, messages
 from build_qa import structured_reply
-from eval_qa import norm
-from qa_retrieve import load_retriever
+from quahog.metrics import norm
+from quahog.qa_retrieve import load_retriever
 
 QA_DIR = pathlib.Path("data/qa")
 OUT_DIR = QA_DIR / "lora"

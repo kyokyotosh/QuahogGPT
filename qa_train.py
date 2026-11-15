@@ -31,9 +31,9 @@ import torch
 import torch.nn.functional as F
 
 from build_qa import TEMPLATES, structured_reply
-from eval_qa import norm
+from quahog.metrics import norm
 from quahog_qa import K, MAX_ANSWER, MAX_DOCS, load_model, prompt_ids
-from qa_retrieve import load_retriever
+from quahog.qa_retrieve import load_retriever
 
 QA_DIR = pathlib.Path("data/qa")
 

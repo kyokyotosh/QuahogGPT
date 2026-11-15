@@ -9,7 +9,7 @@ import collections
 import math
 import re
 
-from step3_scrape import load_docs
+from quahog.scrape import load_docs
 
 CHUNK_CHARS = 200  # rough passage size; a single long sentence stays whole
 K1 = 1.5  # BM25 term-frequency saturation
