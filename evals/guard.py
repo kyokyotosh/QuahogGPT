@@ -8,7 +8,7 @@
 Factual Family Guy accuracy (and false refusals on it) comes from evals/qa.py.
 
 Usage (defaults: ask.MODEL with the topic gate):
-    .venv-mlx/bin/python -m evals.guard --out logs_guard_final.jsonl
+    .venv-mlx/bin/python -m evals.guard --out logs/eval/guard_final.jsonl
 """
 
 import argparse
