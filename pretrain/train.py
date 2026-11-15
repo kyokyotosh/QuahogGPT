@@ -3,6 +3,12 @@
 Compared with step 2, the data is real (wiki corpus) and the tokens are BPE
 subwords. The model keeps the best checkpoint by validation loss, so overfitting
 can't ruin the saved model.
+
+Usage (from the repo root):
+    python -m pretrain.train                                  # v5 defaults
+    python -m pretrain.train --max-iters 24000 --ckpt checkpoints/quahog_gpt_v7_long.pt
+    python -m pretrain.train --ckpt checkpoints/quahog_gpt_v8.pt --tokenizer data/tokenizer_4k.json \\
+        --block-size 512 --batch-size 16 --n-embd 256 --n-head 8 --n-layer 8 --lr 1e-3 --max-iters 20000
 """
 
 import argparse

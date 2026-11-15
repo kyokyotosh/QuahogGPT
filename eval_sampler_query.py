@@ -13,9 +13,9 @@ Variants (all share the same query and target):
   none:       no retrieval
   truncated:  top-1 passage cut to CONTEXT tokens (the behavior before the fix)
   first-fit:  first passage in rank order that fits CONTEXT whole; no retrieval if
-              none fits (the current rag_sample.py)
+              none fits (the current pretrain/rag_sample.py)
 
-Constants match rag_sample.py. Keep them in sync if that file changes.
+Constants match pretrain/rag_sample.py. Keep them in sync if that file changes.
 
 Usage (from the repo root):
     python eval_sampler_query.py checkpoints/quahog_gpt_v5.pt checkpoints/quahog_gpt_v7_wide.pt

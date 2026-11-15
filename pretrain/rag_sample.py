@@ -4,6 +4,8 @@ The model sees 128 tokens at a time. Every SEGMENT generated tokens, the wiki
 passage most relevant to the recent text is retrieved and placed at the start of
 the window (up to CONTEXT_TOKENS), followed by the most recent text. So the
 passage stays visible while the model writes about it.
+
+Usage: python -m pretrain.rag_sample
 """
 
 import json

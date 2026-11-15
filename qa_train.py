@@ -1,7 +1,7 @@
 """Fine-tune a pretrained QuahogGPT checkpoint to answer questions from wiki excerpts.
 
 No pretrained model from outside the project is involved: the starting checkpoint
-comes from step4_train.py on the Family Guy corpus.
+comes from pretrain/train.py on the Family Guy corpus.
 
 Training examples (train pages only; see build_qa.py for the page split):
   - structured infobox questions, each rewritten with every phrasing in

@@ -14,7 +14,7 @@ Reports, per checkpoint:
   body loss:      first --body-tokens tokens of the body, given the title (no retrieval)
   retrieval gain: body loss minus loss with retrieved passages prepended
 
-Retrieval options (defaults match rag_sample.py):
+Retrieval options (defaults match pretrain/rag_sample.py):
   --passages N        top-N passages from other pages, joined in rank order
   --context-tokens N  cap on the retrieved text, in tokens (window is 128 minus body)
 

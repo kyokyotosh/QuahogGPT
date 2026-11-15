@@ -2,6 +2,8 @@
 
 Training already finished, so this only changes how tokens are picked:
 no retraining, same weights. Compare temperature and top-k side by side.
+
+Usage: python -m pretrain.sample
 """
 
 import json
