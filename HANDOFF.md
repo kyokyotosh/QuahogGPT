@@ -14,7 +14,7 @@ Where the project stands, so you can pick it up on the Mac.
 | 6. Question answering | `quahog/qa_retrieve.py`, `qa/ask.py`, `evals/qa.py`, `qa/build_qa.py`, `qa/build_lora_data.py`, `configs/lora_qa.yaml`, `qa/build_gate_data.py`, `configs/lora_gate.yaml`, `evals/guard.py` | done: topic gate (Qwen2.5-3B + LoRA) + retrieval + Qwen3-30B-A3B reader. 0.974 on factual questions, 100% of off-topic refused. See "Question answering (shipped assistant)" |
 | 7. Question answering from scratch | `qa/quahog_qa.py`, `qa/train_quahog_qa.py`, `pretrain/train.py` (v8) | done: QuahogGPT v8 pretrained here + QA fine-tune, 0.673 on the QA test. See "Question answering from scratch" |
 
-Latest commit: see `git log` (repository reorganized into folders; see "Repository layout").
+Latest commit: see `git log` (web app with follow-ups and cited sources).
 
 ## Repository layout
 
@@ -25,9 +25,10 @@ Run everything from the repo root as `python -m <folder>.<script>`; paths such a
 | `quahog/` | shared library: `gpt.py` (model), `bpe.py` (tokenizer; `python -m quahog.bpe`), `scrape.py` (wiki download and corpus; `python -m quahog.scrape`), `retrieve.py` (BM25), `qa_retrieve.py` (QA retrieval), `metrics.py` (answer matching) | `gpt.py`, `step3_bpe.py`, `step3_scrape.py`, `retrieve.py`, `qa_retrieve.py`; `metrics.py` split out of `eval_qa.py` |
 | `tutorial/` | `step1_bigram.py`, `step2_gpt.py` | same names at the root |
 | `pretrain/` | `train.py`, `sample.py`, `rag_sample.py` | `step4_train.py`, `sample.py`, `rag_sample.py` |
-| `qa/` | `ask.py` (shipped assistant), `quahog_qa.py` (from-scratch reader), `train_quahog_qa.py`, `build_qa.py`, `build_lora_data.py`, `build_gate_data.py` | same names at the root; `train_quahog_qa.py` was `qa_train.py` |
-| `evals/` | `qa.py`, `guard.py`, `same_split.py`, `sampler_query.py`, `first_fit.py`, `whole_passages.py`, `ablate_retrieval.py`, `overlap.py` | `eval_<name>.py` |
+| `qa/` | `ask.py` (shipped assistant), `quahog_qa.py` (from-scratch reader), `train_quahog_qa.py`, `build_qa.py`, `build_lora_data.py`, `build_gate_data.py`, `build_chat_test.py` | same names at the root; `train_quahog_qa.py` was `qa_train.py` |
+| `evals/` | `qa.py`, `guard.py`, `chat.py`, `same_split.py`, `sampler_query.py`, `first_fit.py`, `whole_passages.py`, `ablate_retrieval.py`, `overlap.py` | `eval_<name>.py` |
 | `configs/` | `lora_qa.yaml`, `lora_gate.yaml` | `lora_config.yaml`, `gate_config.yaml` |
+| `web/` | `server.py` (chat server), `static/` (`index.html`, `style.css`, `app.js`) | new |
 | `logs/` | `train/` (training logs), `eval/` (eval predictions), `scrape_all.txt` | `logs_*.txt`, `logs_*.jsonl` |
 | `data/` | `qa/` question sets (committed); corpus, tokenizers, raw pages (gitignored) | unchanged |
 
@@ -92,7 +93,7 @@ python -m quahog.bpe
 .venv-mlx/bin/python -m qa.ask "Who is Peter Griffin?" "Where is Quahog located?" "When did Joe Swanson first appear?"
 ```
 
-Pipeline (shipped, `qa/ask.py`): message → topic gate (Qwen2.5-3B-Instruct + LoRA `adapters/gate`, ON/OFF) → OFF: `REFUSAL` ("Sorry, I can only answer questions about Family Guy.") / ON: `quahog/qa_retrieve.py` (8 excerpts) → Qwen3-30B-A3B-Instruct-2507 (4-bit, MLX, no adapter) → answer (up to 500 tokens). `--no-gate` skips the gate, `--model`/`--adapter` pick another answer model (e.g. Qwen2.5-3B + `adapters/qa`), `--no-retrieval` skips the excerpts, `--show-passages` prints them. Memory: about 16 GB + 2 GB of weights.
+Pipeline (shipped, `qa/ask.py` `QA.stream`): message → follow-up context (a follow-up that names no wiki page but refers back, by pronoun or "the director"-style phrase, gets the conversation's subject: `When did it air? (about the Family Guy episode "Fat Gun")`; no model involved) → topic gate (Qwen2.5-3B-Instruct + LoRA `adapters/gate`, ON/OFF) → OFF: `REFUSAL` ("Sorry, I can only answer questions about Family Guy.") / ON: `quahog/qa_retrieve.py` (8 excerpts) → Qwen3-30B-A3B-Instruct-2507 (4-bit, MLX, no adapter) with the last 6 messages → answer with `[n]` citations (up to 500 tokens) → cited excerpts returned as sources with Family Guy wiki links. `--no-gate` skips the gate, `--model`/`--adapter` pick another answer model (e.g. Qwen2.5-3B + `adapters/qa`), `--no-retrieval` skips the excerpts, `--show-passages` prints them. Memory: about 16 GB + 2 GB of weights.
 
 Retrieval (`quahog/qa_retrieve.py`):
 - Recovers text that `quahog.scrape.clean` drops: the 489 episode plots (`plot` field of `{{EpisodeTabs}}`) and 1,883 episode subpages (Trivia, Goofs, Quotes, References in `{{EpisodeTabs/...}}` `contents` fields). Subpages fold into their episode. 61,096 passages (`quahog/retrieve.py` has 29,493).
@@ -119,7 +120,8 @@ Results on the 385 test questions (`evals/qa.py`; correct = the answer contains 
 | 3B + LoRA `adapters/qa` + `quahog/qa_retrieve.py` | 0.974 ± 0.008 | `logs/eval/qa_lora.jsonl` (old system prompt, no topic policy). Earlier retriever versions: 0.971, 0.966 |
 | Qwen2.5-7B-Instruct, no adapter, topic-policy prompt, no gate | 0.984 ± 0.006 | `logs/eval/qa_Qwen2.5-7B.jsonl` |
 | Qwen3-30B-A3B-Instruct-2507, no adapter, topic-policy prompt, no gate | 0.984 ± 0.006 | `logs/eval/qa_Qwen3-30B.jsonl` |
-| **Shipped: gate + Qwen3-30B-A3B** | **0.974 ± 0.008** | `logs/eval/qa_final.jsonl`. The 4 gate refusals include 3 test questions that are not about Family Guy (e.g. "Which character did David Herman play in Office Space?") |
+| gate + Qwen3-30B-A3B, before citations | 0.974 ± 0.008 | earlier `logs/eval/qa_final.jsonl` (overwritten) |
+| **Shipped: gate + Qwen3-30B-A3B, citations** | **0.979 ± 0.007** | `logs/eval/qa_final.jsonl` (`QA.answer` strips the `[n]` markers before scoring). The 4 gate refusals include 3 test questions that are not about Family Guy (e.g. "Which character did David Herman play in Office Space?") |
 
 LoRA vs base, paired on the same questions (both before the linking fix): +0.026 ± 0.012 (16 questions only the LoRA gets right, 6 only base). Base wrote "the excerpts"/"information provided" in 25 answers; the LoRA in none. The LoRA answers "I'm not sure" to questions outside the wiki (e.g. "Who won the 2022 World Cup?").
 
@@ -139,6 +141,25 @@ Goal: answer anything about Family Guy, refuse everything else. Test set `data/q
 Gate (`ask.Gate`): Qwen2.5-3B-Instruct + LoRA trained on `qa/build_gate_data.py` output (1,021 OFF, 3,107 ON from train-page questions; `data/qa/gate/`, gitignored), `configs/lora_gate.yaml` (rank 8, 500 iterations, about 1.5 h). The prompt names the wiki pages the message mentions (`qa_retrieve.link`), so "Who is X?" about someone who appears in the show is ON while their net worth is OFF. Gate alone on test prompts: off-topic refused 248/248, open requests allowed 145/149, factual allowed 381/385. Its misses: "The Simpsons Guy" crossover requests and two questions about how the show handles suicide.
 
 Do not use Qwen3 Instruct-2507 models as the gate base with `mlx_lm lora`: their chat template adds an empty `<think></think>` block to every training target, which the instruct model never produces (initial val loss 13.6); the adapter collapsed to a constant answer.
+
+### Follow-ups and the web app
+
+```bash
+.venv-mlx/bin/python -m web.server     # http://127.0.0.1:8000
+```
+
+`web/server.py` (standard library) serves `web/static/` (vanilla HTML/CSS/JS) and streams `POST /api/chat` as Server-Sent Events (`meta`, `token`, `done`, `error`). The browser keeps the conversation and sends it with each message. One worker thread loads the models and runs every job: MLX models belong to the thread that loaded them (`ThreadingHTTPServer` threads failed with "There is no Stream(cpu, 0) in current thread"). Bound to 127.0.0.1 by default. The page streams answers, links `[n]` to the wiki, shows source cards, and shows "Searched as: ..." when a follow-up was given the conversation's subject. Tested in a browser: question, two follow-ups, refusal.
+
+Multi-turn test (`evals/chat.py`, `data/qa/chat_test.jsonl` from `qa/build_chat_test.py`): 160 two-turn conversations about test pages; the follow-up is scored with exact gold answers from the infoboxes (air date, writer, director, season, first appearance, song's episode), plus 20 off-topic follow-ups (refuse) and 20 open follow-ups ("Summarize what happens in it.", must answer).
+
+| follow-up step | handled | off-topic follow-ups refused | log |
+| --- | --- | --- | --- |
+| none | 0.125 | 20/20 | `logs/eval/chat_norewrite.jsonl` |
+| 30B rewrites the message | 0.925 | 20/20 | not kept; the model often answered or carried out the request instead of rewriting (wrote the joke, returned the air date) |
+| 30B names the referent only | 0.713 | 20/20 | not kept; same problem |
+| **Shipped: linker carries the subject when the message refers back** | **0.988 ± 0.009** | 20/20 | `logs/eval/chat.jsonl` |
+
+Subject form: `(about the Family Guy episode "X")` (kind from the infobox). Gate-only comparison on the 140 on-topic follow-ups: this form 140/140, bare titles 133/140, three linked titles 127/140. Carrying the subject into every question-like follow-up let off-topic ones through (gate refused 227/248 off-topic messages with a subject appended); requiring a reference back fixes it (247/248). Retraining the gate on follow-up-shaped examples was worse (single off-topic refused 233/248) and was dropped. Citations: 160/160 opening answers and 130/140 follow-up answers cite an excerpt.
 
 ## Question answering from scratch (QuahogGPT-QA)
 
