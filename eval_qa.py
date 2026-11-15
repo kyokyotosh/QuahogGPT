@@ -44,6 +44,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--reader", choices=["qwen", "quahog"], default="qwen")
     parser.add_argument("--adapter", default=None, help="qwen: LoRA adapter directory")
+    parser.add_argument("--model", default=None, help="qwen: model repo (default: ask.MODEL)")
     parser.add_argument("--ckpt", default="checkpoints/quahog_qa_v8c.pt", help="quahog: checkpoint")
     parser.add_argument("--no-retrieval", action="store_true")
     parser.add_argument("--out", required=True)
@@ -53,9 +54,9 @@ def main():
     items = [json.loads(line) for line in TEST.read_text(encoding="utf-8").splitlines()]
     items = items[: args.limit] if args.limit else items
     if args.reader == "qwen":  # imported here so each reader only needs its own venv
-        from ask import QA
+        from ask import MODEL, QA
 
-        qa = QA(adapter=args.adapter, retrieval=not args.no_retrieval)
+        qa = QA(adapter=args.adapter, retrieval=not args.no_retrieval, model=args.model or MODEL)
     else:
         from quahog_qa import QuahogQA
 

@@ -278,12 +278,20 @@ class Retriever:
         self.max_alias_words = max(len(a.split()) for a in facts.aliases)
 
     def link(self, question):
-        """Page titles named in the question, longest match first, without overlaps."""
-        question = re.sub(r"\bfamily guy('s)?\b", " ", question.replace("\u2019", "'"), flags=re.I)
-        words = alias_key(question, lower=False).split()
+        """Page titles named in the question, longest match first, without overlaps.
+
+        "Family Guy" is removed before matching so that "Guy" alone cannot link "Guy, Robot",
+        but titles of three or more words are matched on the full question first, so
+        '"Family Guy" Through the Years' still links."""
+        question = question.replace("\u2019", "'")
+        full = self._match(alias_key(question, lower=False).split(), min_words=3)
+        stripped = re.sub(r"\bfamily guy('s)?\b", " ", question, flags=re.I)
+        return list(dict.fromkeys(full + self._match(alias_key(stripped, lower=False).split())))
+
+    def _match(self, words, min_words=1):
         cased = any(w[:1].isupper() for w in words[1:])  # the question uses capitals for names
         found, used = [], set()
-        for n in range(min(self.max_alias_words, len(words)), 0, -1):
+        for n in range(min(self.max_alias_words, len(words)), min_words - 1, -1):
             for i in range(len(words) - n + 1):
                 span = set(range(i, i + n))
                 if span & used:
@@ -299,7 +307,7 @@ class Retriever:
                     continue  # "voice" in "voice actor" is not the show "The Voice"
                 found.append((i, title))
                 used |= span
-        return list(dict.fromkeys(t for _, t in sorted(found)))
+        return [t for _, t in sorted(found)]
 
     def retrieve(self, question, k=K, max_docs=MAX_DOCS):
         """Up to k (title, text): facts of the first max_docs pages named in the question,

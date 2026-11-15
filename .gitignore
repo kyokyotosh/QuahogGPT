@@ -10,3 +10,4 @@ adapters/
 data/qa/lora/
 data/tokenizer_4k.json
 data/corpus_v5.txt
+data/qa/gate/

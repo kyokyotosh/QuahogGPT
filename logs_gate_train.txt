@@ -1,0 +1,47 @@
+Loading configuration file gate_config.yaml
+Loading pretrained model
+Fetching 9 files:   0%|          | 0/9 [00:00<?, ?it/s]Fetching 9 files: 100%|██████████| 9/9 [00:00<00:00, 2639.40it/s]
+Loading datasets
+Training
+╭─ [1mmlx_lm.lora[0m ────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│    model           [1mmlx-community/Qwen2.5-3B-Instruct-4bit[0m                                                            │
+│    type            [1mlora · 16 layers · rank 8[0m                                                                         │
+│    dataset         [1mdata/qa/gate[0m                                                                                      │
+│    optimizer       [1madam · lr 1.0e-04[0m                                                                                 │
+│    batch · iters   [1m8 · 500[0m                                                                                           │
+│    max seq         [1m1,024[0m                                                                                             │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+Trainable parameters: 0.216% (6.652M/3085.939M)
+  [1miter   train_loss     tok/s     tokens[0m
+     1    [1mval[0m [1m6.859[0m    110.24s
+    25    [1m1.030 ▼[0m    [1m    3[0m      0.8k
+    50    [1m0.044 ▼[0m    [1m    4[0m      1.6k
+    75    [1m0.041 ▼[0m    [1m    3[0m      2.4k
+   100    [1mval[0m [1m0.017[0m    105.61s
+   100    [1m0.021 ▼[0m    [1m    3[0m      3.2k
+  [1msave[0m  0000100_adapters.safetensors
+   125    [1m0.018 ▼[0m    [1m    4[0m      4.0k
+   150    [1m0.019 ▲[0m    [1m    3[0m      4.8k
+   175    [1m0.025 ▲[0m    [1m    3[0m      5.6k
+   200    [1mval[0m [1m0.014[0m    105.61s
+   200    [1m0.015 ▼[0m    [1m    3[0m      6.4k
+  [1msave[0m  0000200_adapters.safetensors
+   225    [1m0.009 ▼[0m    [1m    3[0m      7.2k
+   250    [1m0.027 ▲[0m    [1m    4[0m      8.0k
+   275    [1m0.009 ▼[0m    [1m    3[0m      8.8k
+   300    [1mval[0m [1m0.018[0m    105.60s
+   300    [1m0.011 ▲[0m    [1m    4[0m      9.6k
+  [1msave[0m  0000300_adapters.safetensors
+   325    [1m0.014 ▲[0m    [1m    3[0m     10.4k
+   350    [1m0.003 ▼[0m    [1m    3[0m     11.2k
+   375    [1m0.010 ▲[0m    [1m    3[0m     12.0k
+   400    [1mval[0m [1m0.006[0m    105.61s
+   400    [1m0.008 ▼[0m    [1m    3[0m     12.8k
+  [1msave[0m  0000400_adapters.safetensors
+   425    [1m0.012 ▲[0m    [1m    4[0m     13.6k
+   450    [1m0.008 ▼[0m    [1m    4[0m     14.4k
+   475    [1m0.013 ▲[0m    [1m    3[0m     15.2k
+   500    [1mval[0m [1m0.006[0m    105.61s
+   500    [1m0.005 ▼[0m    [1m    3[0m     16.0k
+  [1msave[0m  0000500_adapters.safetensors
+[1mtrain[0m ██████████████████████████████ [1m100%[0m · [1m  500[0m/500

@@ -1,0 +1,23 @@
+# Topic classifier (ask.Gate). Run from the repo root after build_gate_data.py:
+#   .venv-mlx/bin/python -m mlx_lm lora -c gate_config.yaml
+model: mlx-community/Qwen2.5-3B-Instruct-4bit
+train: true
+data: data/qa/gate
+fine_tune_type: lora
+mask_prompt: true  # loss on the ON/OFF answer only
+num_layers: 16
+batch_size: 8
+iters: 500  # about one epoch
+learning_rate: 1.0e-4
+steps_per_report: 25
+steps_per_eval: 100
+val_batches: -1
+save_every: 100
+adapter_path: adapters/gate
+max_seq_length: 1024
+grad_checkpoint: true
+seed: 0
+lora_parameters:
+  rank: 8
+  scale: 20.0
+  dropout: 0.05
