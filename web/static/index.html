@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QuahogGPT</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">Q</span>
+      <div>
+        <h1>QuahogGPT</h1>
+        <p class="tagline">Ask anything about Family Guy</p>
+      </div>
+    </div>
+    <button id="new-chat" class="ghost" type="button">New chat</button>
+  </header>
+
+  <main id="chat" aria-live="polite">
+    <section id="empty" class="empty">
+      <p>Answers come from the Family Guy wiki, with the excerpts they cite. Questions about anything else get a polite no.</p>
+      <div class="examples">
+        <button type="button" class="example">Who is Peter Griffin?</button>
+        <button type="button" class="example">Where is Quahog located?</button>
+        <button type="button" class="example">When did Joe Swanson first appear?</button>
+        <button type="button" class="example">Tell me about the episode "Road to Rhode Island"</button>
+      </div>
+    </section>
+    <ol id="messages"></ol>
+  </main>
+
+  <form id="composer" class="composer">
+    <textarea id="input" rows="1" maxlength="2000" placeholder="Ask about an episode, a character, a gag..." aria-label="Message" required></textarea>
+    <button id="send" type="submit">Send</button>
+  </form>
+  <p class="footnote">Answers can be wrong. Check the linked sources.</p>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

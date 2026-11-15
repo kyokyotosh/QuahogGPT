@@ -1,0 +1,193 @@
+:root {
+  --bg: #f7f6f2;
+  --surface: #ffffff;
+  --text: #1d1d1f;
+  --muted: #6b6b70;
+  --border: #e3e1da;
+  --accent: #2f6fdb;
+  --accent-text: #ffffff;
+  --user: #2f6fdb;
+  --user-text: #ffffff;
+  --cite: #e9f0fc;
+  --refused: #f3f1ec;
+  --radius: 14px;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141416;
+    --surface: #1e1e22;
+    --text: #ececef;
+    --muted: #9a9aa2;
+    --border: #2e2e34;
+    --accent: #5b8ff0;
+    --user: #3a6fd1;
+    --cite: #24314a;
+    --refused: #1a1a1d;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px max(16px, calc((100vw - 760px) / 2));
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.brand { display: flex; align-items: center; gap: 12px; }
+
+.logo {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-weight: 700;
+}
+
+h1 { margin: 0; font-size: 1.15rem; }
+
+.tagline { margin: 0; color: var(--muted); font-size: 0.85rem; }
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  padding: 8px 14px;
+}
+
+button:disabled { opacity: 0.5; cursor: default; }
+
+.ghost:hover, .example:hover { border-color: var(--accent); }
+
+main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px max(16px, calc((100vw - 760px) / 2));
+}
+
+.empty { color: var(--muted); text-align: center; margin-top: 8vh; }
+
+.examples {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.example { font-size: 0.9rem; }
+
+#messages { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+
+.msg { display: flex; flex-direction: column; max-width: 88%; }
+
+.msg.user { align-self: flex-end; }
+
+.bubble {
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  overflow-wrap: anywhere;
+}
+
+.bubble p { margin: 0 0 0.6em; }
+
+.bubble p:last-child { margin-bottom: 0; }
+
+.msg.user .bubble { background: var(--user); color: var(--user-text); border-color: transparent; white-space: pre-wrap; }
+
+.msg.refused .bubble { background: var(--refused); color: var(--muted); }
+
+.msg.error .bubble { border-color: #d64545; color: #d64545; }
+
+.rewrite { margin: 4px 4px 0; color: var(--muted); font-size: 0.8rem; }
+
+sup.cite a, sup.cite span {
+  display: inline-block;
+  min-width: 1.4em;
+  padding: 0 4px;
+  margin-left: 1px;
+  border-radius: 6px;
+  background: var(--cite);
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.5;
+  text-align: center;
+  text-decoration: none;
+}
+
+.sources { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+
+.sources a {
+  display: block;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.sources a:hover { border-color: var(--accent); }
+
+.sources .n { color: var(--accent); font-weight: 600; margin-right: 6px; }
+
+.sources .title { font-weight: 600; }
+
+.sources .snippet { display: block; color: var(--muted); margin-top: 2px; }
+
+.typing::after { content: "▍"; animation: blink 1s steps(2) infinite; color: var(--muted); }
+
+@keyframes blink { 50% { opacity: 0; } }
+
+.composer {
+  display: flex;
+  gap: 8px;
+  padding: 12px max(16px, calc((100vw - 760px) / 2)) 4px;
+  background: var(--bg);
+}
+
+textarea {
+  flex: 1;
+  resize: none;
+  max-height: 160px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+}
+
+textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+
+#send { background: var(--accent); color: var(--accent-text); border-color: transparent; }
+
+.footnote { margin: 0; padding: 0 16px 10px; text-align: center; color: var(--muted); font-size: 0.75rem; }
