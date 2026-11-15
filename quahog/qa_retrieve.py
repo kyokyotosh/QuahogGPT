@@ -24,6 +24,7 @@ Usage:
 import collections
 import datetime
 import json
+import pathlib
 import re
 
 from quahog.retrieve import Index, chunk_page, tokenize
@@ -39,6 +40,8 @@ PER_PAGE = 4  # BM25 passages per page (facts documents not counted)
 MAX_DOCS = 3  # facts documents of named pages placed first
 STOP_ALIASES = {"who", "what", "when", "where", "which", "why", "how", "the", "family guy"}
 HATNOTE = re.compile(r"^(see also|for other uses|not to be confused|this article|main article)\b", re.I)
+MAJOR_PAGES = 400  # most-linked pages that may be named in lowercase or with a typo (plus every character page)
+WORDS = pathlib.Path("/usr/share/dict/words")  # real English words are never typo-corrected into a name
 
 CHARACTER_FIELDS = [
     ("full_name", "Full name"),
@@ -166,6 +169,7 @@ class Facts:
         self.debuts = self._debuts()
         self.docs = {t: self._doc(t) for t in self.pages}
         self.aliases = self._aliases()
+        self.major = self._major(raw)
 
     def page_of(self, title):
         """Episode subpages ("X/Notes/Trivia") belong to page X."""
@@ -263,6 +267,35 @@ class Facts:
             aliases.pop(a, None)
         return {a: t for a, t in aliases.items() if len(a) >= 3}
 
+    def _major(self, raw):
+        """Character pages plus the MAJOR_PAGES pages most linked from other pages (Quahog,
+        Peter Griffin, the Drunken Clam, ...): names users type casually."""
+        inbound = collections.Counter()
+        for t, w in raw.items():
+            for target in set(link_targets(w)):
+                page = self.resolve(target)
+                if page and page != t:
+                    inbound[page] += 1
+        top = {p for p, _ in inbound.most_common(MAJOR_PAGES)}
+        return top | {t for t in self.pages if self.boxes[t][0] == "CharacterBox"}
+
+
+def typo_distance(a, b, limit):
+    """Edit distance with transpositions (optimal string alignment), or limit + 1 if larger."""
+    if abs(len(a) - len(b)) > limit:
+        return limit + 1
+    prev2, prev = None, list(range(len(b) + 1))
+    for i in range(1, len(a) + 1):
+        cur = [i] + [0] * len(b)
+        for j in range(1, len(b) + 1):
+            cur[j] = min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] != b[j - 1]))
+            if i > 1 and j > 1 and a[i - 1] == b[j - 2] and a[i - 2] == b[j - 1]:
+                cur[j] = min(cur[j], prev2[j - 2] + 1)
+        if min(cur) > limit:
+            return limit + 1
+        prev2, prev = prev, cur
+    return prev[-1]
+
 
 class Retriever:
     def __init__(self, facts, link_bonus=LINK_BONUS, per_page=PER_PAGE):
@@ -276,6 +309,9 @@ class Retriever:
         for i, (title, _) in enumerate(self.index.passages):
             self.page_ids[facts.page_of(title)].append(i)
         self.max_alias_words = max(len(a.split()) for a in facts.aliases)
+        # One-word names of major pages, for typo correction ("Clevand" -> Cleveland Brown).
+        self.fuzzy_names = {a: t for a, t in facts.aliases.items() if " " not in a and len(a) >= 4 and t in facts.major}
+        self.english = {w for w in WORDS.read_text().split() if w.islower()} if WORDS.exists() else None
 
     def link(self, question):
         """Page titles named in the question, longest match first, without overlaps.
@@ -303,11 +339,30 @@ class Retriever:
                 if not title:
                     continue
                 capital = any(w[:1].isupper() for w in words[i : i + n])
-                if not capital and (n == 1 or cased):
-                    continue  # "voice" in "voice actor" is not the show "The Voice"
+                if not capital and (n == 1 or cased) and title not in self.facts.major:
+                    continue  # "voice" in "voice actor" is not the show "The Voice"; "quagmire" is Quagmire
                 found.append((i, title))
                 used |= span
+        if min_words == 1:
+            for i, w in enumerate(words):
+                title = None if i in used else self.correct_typo(w)
+                if title:
+                    found.append((i, title))
         return [t for _, t in sorted(found)]
+
+    def correct_typo(self, word):
+        """The major page a misspelled one-word name means, or None. Only words of 5+ letters
+        that are not English words; one edit allowed (two for 7+ letters)."""
+        w = word.lower().removesuffix("'s")
+        if self.english is None or len(w) < 5 or not w.isalpha() or w in self.english or w in self.facts.aliases:
+            return None
+        limit = 1 if len(w) < 7 else 2
+        best = None
+        for name, title in self.fuzzy_names.items():
+            d = typo_distance(w, name, limit)
+            if d <= limit and (best is None or d < best[0]):
+                best = (d, title)
+        return best[1] if best else None
 
     def retrieve(self, question, k=K, max_docs=MAX_DOCS):
         """Up to k (title, text): facts of the first max_docs pages named in the question,
