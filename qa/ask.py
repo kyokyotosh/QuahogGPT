@@ -2,7 +2,7 @@
 
 Two steps per message:
   1. Topic gate: Qwen2.5-3B-Instruct with the LoRA adapter adapters/gate (trained with
-     build_gate_data.py + gate_config.yaml) says ON or OFF. OFF -> REFUSAL.
+     qa/build_gate_data.py + configs/lora_gate.yaml) says ON or OFF. OFF -> REFUSAL.
   2. Answer: Qwen3-30B-A3B-Instruct-2507 (4-bit, mixture of experts, about 3B active per
      token) reads 8 excerpts from quahog/qa_retrieve.py and answers.
 
@@ -12,10 +12,10 @@ Needs the MLX environment (Python 3.12; MLX has no wheels for the main venv's Py
 The first run downloads the models (about 16 GB + 2 GB) to the Hugging Face cache.
 
 Usage:
-    .venv-mlx/bin/python ask.py "Who is Peter Griffin?" "Where is Quahog located?"
-    .venv-mlx/bin/python ask.py --show-passages "When did Joe Swanson first appear?"
-    .venv-mlx/bin/python ask.py --no-gate "..."                    # skip the topic gate
-    .venv-mlx/bin/python ask.py --model mlx-community/Qwen2.5-3B-Instruct-4bit --adapter adapters/qa "..."
+    .venv-mlx/bin/python -m qa.ask "Who is Peter Griffin?" "Where is Quahog located?"
+    .venv-mlx/bin/python -m qa.ask --show-passages "When did Joe Swanson first appear?"
+    .venv-mlx/bin/python -m qa.ask --no-gate "..."                    # skip the topic gate
+    .venv-mlx/bin/python -m qa.ask --model mlx-community/Qwen2.5-3B-Instruct-4bit --adapter adapters/qa "..."
 """
 
 import argparse

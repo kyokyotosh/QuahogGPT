@@ -1,4 +1,4 @@
-"""Does the assistant stay on Family Guy? Scores ask.py on data/qa/guard_test.jsonl.
+"""Does the assistant stay on Family Guy? Scores qa/ask.py on data/qa/guard_test.jsonl.
 
   off_*    off-topic messages (general knowledge, tasks, other shows, celebrities outside
            the show, chit-chat, tricks): should be refused (ask.REFUSAL)
@@ -17,7 +17,7 @@ import json
 import math
 import pathlib
 
-from ask import MODEL, QA, is_refusal
+from qa.ask import MODEL, QA, is_refusal
 
 GUARD = pathlib.Path("data/qa/guard_test.jsonl")
 

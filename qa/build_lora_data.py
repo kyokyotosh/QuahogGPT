@@ -1,27 +1,27 @@
 """Chat-format training data for the LoRA reader (mlx_lm.lora).
 
-Inputs (train pages only; see build_qa.py for the page split):
+Inputs (train pages only; see qa/build_qa.py for the page split):
   data/qa/structured.jsonl       infobox questions; replies come from templates here
   data/qa/generated_train.jsonl  passage questions with an LLM-written reply
   data/qa/guard_train.jsonl      off-topic messages (off_*) and open-ended Family Guy
                                  requests (on_open) with LLM-written grounded replies
 
-Each example is the exact prompt ask.py sends (system + retrieved excerpts + question)
+Each example is the exact prompt qa/ask.py sends (system + retrieved excerpts + question)
 and the reply as the assistant turn. Examples whose retrieved excerpts do not contain a
 gold answer are dropped. ABSTAIN examples remove every excerpt containing the answer
 and teach the reply NOT_SURE, so the model declines instead of guessing. Off-topic
 messages teach ask.REFUSAL, with whatever excerpts retrieval returns for them.
 
 Usage:
-    .venv-mlx/bin/python build_lora_data.py   # writes data/qa/lora/{train,valid}.jsonl
+    .venv-mlx/bin/python -m qa.build_lora_data   # writes data/qa/lora/{train,valid}.jsonl
 """
 
 import json
 import pathlib
 import random
 
-from ask import REFUSAL, messages
-from build_qa import structured_reply
+from qa.ask import REFUSAL, messages
+from qa.build_qa import structured_reply
 from quahog.metrics import norm
 from quahog.qa_retrieve import load_retriever
 

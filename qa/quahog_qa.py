@@ -1,6 +1,6 @@
 """Answer Family Guy questions with QuahogGPT, trained from scratch (no pretrained model).
 
-The prompt is plain text, shared by training (qa_train.py) and inference:
+The prompt is plain text, shared by training (qa/train_quahog_qa.py) and inference:
 
     <title>: <excerpt>
     <title>: <excerpt>
@@ -13,7 +13,7 @@ excerpts are trimmed so that the prompt plus the reply fits the model's window.
 Generation is greedy, never repeats a 4-token sequence, and stops at the first newline.
 
 Usage (main venv, torch):
-    .venv/bin/python quahog_qa.py "Who is Peter Griffin?" "When did Joe Swanson first appear?"
+    .venv/bin/python -m qa.quahog_qa "Who is Peter Griffin?" "When did Joe Swanson first appear?"
 """
 
 import argparse

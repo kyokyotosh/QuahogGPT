@@ -1,5 +1,5 @@
-# LoRA reader for ask.py. Run from the repo root:
-#   .venv-mlx/bin/python -m mlx_lm lora -c lora_config.yaml
+# Answer-model LoRA for Qwen2.5-3B (optional reader for qa/ask.py --adapter adapters/qa). Run from the repo root:
+#   .venv-mlx/bin/python -m mlx_lm lora -c configs/lora_qa.yaml
 model: mlx-community/Qwen2.5-3B-Instruct-4bit
 train: true
 data: data/qa/lora

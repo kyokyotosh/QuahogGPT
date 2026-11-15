@@ -1,5 +1,5 @@
-# Topic classifier (ask.Gate). Run from the repo root after build_gate_data.py:
-#   .venv-mlx/bin/python -m mlx_lm lora -c gate_config.yaml
+# Topic classifier (qa.ask.Gate). Run from the repo root after qa/build_gate_data.py:
+#   .venv-mlx/bin/python -m mlx_lm lora -c configs/lora_gate.yaml
 model: mlx-community/Qwen2.5-3B-Instruct-4bit
 train: true
 data: data/qa/gate

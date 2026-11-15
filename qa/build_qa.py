@@ -13,7 +13,7 @@ Each item: {"question", "answers" (accepted strings), "page", "kind", "split"}.
 Free-form questions generated from passages are added separately (see HANDOFF.md).
 
 Usage:
-    python build_qa.py     # writes data/qa/structured.jsonl
+    python -m qa.build_qa     # writes data/qa/structured.jsonl
 """
 
 import json

@@ -7,15 +7,15 @@ Train pages and train-only messages only:
        structured.jsonl (every kind), generated_train.jsonl and generated_train_2.jsonl
 
 Usage:
-    .venv-mlx/bin/python build_gate_data.py   # writes data/qa/gate/{train,valid}.jsonl
-    .venv-mlx/bin/python -m mlx_lm lora -c gate_config.yaml
+    .venv-mlx/bin/python -m qa.build_gate_data   # writes data/qa/gate/{train,valid}.jsonl
+    .venv-mlx/bin/python -m mlx_lm lora -c configs/lora_gate.yaml
 """
 
 import json
 import pathlib
 import random
 
-from ask import gate_messages
+from qa.ask import gate_messages
 from quahog.qa_retrieve import load_retriever
 
 QA_DIR = pathlib.Path("data/qa")

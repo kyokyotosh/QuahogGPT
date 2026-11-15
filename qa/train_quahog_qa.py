@@ -3,7 +3,7 @@
 No pretrained model from outside the project is involved: the starting checkpoint
 comes from pretrain/train.py on the Family Guy corpus.
 
-Training examples (train pages only; see build_qa.py for the page split):
+Training examples (train pages only; see qa/build_qa.py for the page split):
   - structured infobox questions, each rewritten with every phrasing in
     build_qa.TEMPLATES, with template replies (build_qa.structured_reply)
   - generated questions (generated_train.jsonl, generated_train_2.jsonl): "who is"
@@ -17,7 +17,7 @@ A slice of train pages (adler32(page) % 20 == 0) is held out for validation loss
 the checkpoint with the lowest validation loss is saved.
 
 Usage:
-    .venv/bin/python qa_train.py --init checkpoints/quahog_gpt_v8.pt --out checkpoints/quahog_qa_v8.pt
+    .venv/bin/python -m qa.train_quahog_qa --init checkpoints/quahog_gpt_v8.pt --out checkpoints/quahog_qa_v8.pt
 """
 
 import argparse
@@ -30,9 +30,9 @@ import zlib
 import torch
 import torch.nn.functional as F
 
-from build_qa import TEMPLATES, structured_reply
+from qa.build_qa import TEMPLATES, structured_reply
 from quahog.metrics import norm
-from quahog_qa import K, MAX_ANSWER, MAX_DOCS, load_model, prompt_ids
+from qa.quahog_qa import K, MAX_ANSWER, MAX_DOCS, load_model, prompt_ids
 from quahog.qa_retrieve import load_retriever
 
 QA_DIR = pathlib.Path("data/qa")

@@ -43,11 +43,11 @@ def main():
     items = [json.loads(line) for line in TEST.read_text(encoding="utf-8").splitlines()]
     items = items[: args.limit] if args.limit else items
     if args.reader == "qwen":  # imported here so each reader only needs its own venv
-        from ask import MODEL, QA
+        from qa.ask import MODEL, QA
 
         qa = QA(adapter=args.adapter, retrieval=not args.no_retrieval, model=args.model or MODEL)
     else:
-        from quahog_qa import QuahogQA
+        from qa.quahog_qa import QuahogQA
 
         qa = QuahogQA(args.ckpt)
     kinds = collections.defaultdict(list)
