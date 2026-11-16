@@ -374,7 +374,8 @@ class Retriever:
         linked = self.link(question)
         out = [(t, self.facts.docs[t]) for t in linked[:max_docs]][:k]
         chosen_docs = [text for _, text in out]
-        scores = self.index.scores(question)
+        # Linked titles join the query, so a misspelled name ("Clevand") still ranks by its page.
+        scores = self.index.scores(" ".join([question, *linked]))
         for page in linked:
             for i in self.page_ids[page]:
                 scores[i] += self.link_bonus
