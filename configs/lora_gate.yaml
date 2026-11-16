@@ -7,7 +7,7 @@ fine_tune_type: lora
 mask_prompt: true  # loss on the ON/OFF answer only
 num_layers: 16
 batch_size: 8
-iters: 500  # about one epoch
+iters: 1126  # about one epoch (9001 examples / batch 8)
 learning_rate: 1.0e-4
 steps_per_report: 25
 steps_per_eval: 100

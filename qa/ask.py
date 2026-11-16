@@ -27,6 +27,7 @@ import argparse
 import re
 import urllib.parse
 
+import mlx.core as mx
 from mlx_lm import generate, load, stream_generate
 
 from quahog.qa_retrieve import load_retriever
@@ -34,6 +35,7 @@ from quahog.qa_retrieve import load_retriever
 MODEL = "mlx-community/Qwen3-30B-A3B-Instruct-2507-4bit"
 GATE_MODEL = "mlx-community/Qwen2.5-3B-Instruct-4bit"
 GATE_ADAPTER = "adapters/gate"
+GATE_THRESHOLD = 0.9  # refuse when the gate's P(OFF) is at least this (chosen on a separate tuning set)
 MAX_TOKENS = 500
 HISTORY_MESSAGES = 6  # earlier messages (user and assistant) the answer model sees
 WIKI_URL = "https://familyguy.fandom.com/wiki/"
@@ -46,9 +48,10 @@ SYSTEM = (
     f'for something else, reply exactly: "{REFUSAL}"\n'
     "Otherwise use the wiki excerpts. Answer factual questions directly in one or two "
     "sentences. For open requests (summaries, explanations, a short scene) write up to about "
-    "150 words. If the excerpts do not contain a fact you need, say you are not sure instead "
-    "of guessing. When you use a fact from an excerpt, cite it with its number in brackets "
-    "right after the fact, like [2]."
+    "150 words. If the excerpts do not contain a fact you need, say plainly that you are not "
+    "sure (for example \"I'm not sure where Cleveland was born.\") instead of guessing. Never "
+    "refer to \"the excerpts\" or \"the provided information\". When you use a fact from an "
+    "excerpt, cite it with its number in brackets right after the fact, like [2]."
 )
 # A follow-up that names no wiki page is tied to the conversation's subject only when it refers
 # back: a pronoun, or "the" + something an episode, character or song has ("the director").
@@ -150,13 +153,22 @@ def chat(model, tokenizer, msgs, max_tokens):
 
 
 class Gate:
-    """Is the message about Family Guy? A small model with its own LoRA adapter."""
+    """Is the message about Family Guy? A small model with its own LoRA adapter.
+    on_topic compares P(OFF), read from the first answer token, with a threshold."""
 
-    def __init__(self, model=GATE_MODEL, adapter=GATE_ADAPTER):
+    def __init__(self, model=GATE_MODEL, adapter=GATE_ADAPTER, threshold=GATE_THRESHOLD):
         self.model, self.tokenizer = load(model, adapter_path=adapter)
+        self.threshold = threshold
+        self.on_id, self.off_id = (self.tokenizer.encode(w, add_special_tokens=False)[0] for w in ("ON", "OFF"))
+
+    def p_off(self, question, pages):
+        prompt = self.tokenizer.apply_chat_template(gate_messages(question, pages), add_generation_prompt=True)
+        logits = self.model(mx.array([prompt]))[0, -1]
+        pair = mx.softmax(mx.stack([logits[self.on_id], logits[self.off_id]]))
+        return pair[1].item()
 
     def on_topic(self, question, pages):
-        return not chat(self.model, self.tokenizer, gate_messages(question, pages), 3).upper().startswith("OFF")
+        return self.p_off(question, pages) < self.threshold
 
 
 class QA:
