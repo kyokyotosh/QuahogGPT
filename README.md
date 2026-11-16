@@ -1,5 +1,9 @@
 # QuahogGPT
 
+<p align="center">
+            <img width="640" height="438" alt="image" src="https://github.com/user-attachments/assets/9d1ec4ed-5157-4cb3-b59f-2354ea040d28" />
+</p>
+
 A Family Guy language-model project, built step by step to learn how LLMs work:
 
 - **QuahogGPT** models trained from scratch on a Family Guy wiki corpus (bigram, tiny GPT, BPE tokenizer, pretraining, and a from-scratch question-answering reader that scores 67.3% on the factual test, with no outside model).
