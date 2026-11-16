@@ -3,7 +3,7 @@
 A Family Guy language-model project, built step by step to learn how LLMs work:
 
 - **QuahogGPT** models trained from scratch on a Family Guy wiki corpus (bigram, tiny GPT, BPE tokenizer, pretraining, and a from-scratch question-answering reader).
-- **The assistant** (`qa/ask.py`): answers questions about Family Guy and refuses everything else. A trained topic gate (Qwen2.5-3B + LoRA) decides, then Qwen3-30B-A3B answers from retrieved wiki excerpts and cites them. On held-out tests: 97.9% of factual questions right, 98.8% of follow-up questions handled, 100% of off-topic messages refused.
+- **The assistant** (`qa/ask.py`): answers questions about Family Guy and refuses everything else. A trained topic gate (Qwen2.5-3B + LoRA) decides, then Qwen3-30B-A3B answers from retrieved wiki excerpts and cites them. On held-out tests: 98.7% of factual questions right (93.8% when typed casually, with typos), 99.4% of follow-up questions handled, 100% of off-topic messages refused.
 - **The web app** (`web/`): a chat page for the assistant, with follow-up questions, streamed answers and links to the cited wiki pages.
 
 Results, data notes, and history: [HANDOFF.md](HANDOFF.md).

@@ -11,10 +11,10 @@ Where the project stands, so you can pick it up on the Mac.
 | 3. Scrape + BPE | `quahog/scrape.py`, `quahog/bpe.py` | done (`7ce6c00`, `ff97738`, `8c18201`, `29e6f14`) |
 | 4. Train on corpus | `quahog/gpt.py`, `pretrain/train.py`, `pretrain/sample.py` | done (`da95e5c`, `29e6f14`, `d17c02d`) |
 | 5. Retrieval | `quahog/retrieve.py`, `pretrain/rag_sample.py` | done (BM25 over wiki passages) |
-| 6. Question answering | `quahog/qa_retrieve.py`, `qa/ask.py`, `evals/qa.py`, `qa/build_qa.py`, `qa/build_lora_data.py`, `configs/lora_qa.yaml`, `qa/build_gate_data.py`, `configs/lora_gate.yaml`, `evals/guard.py` | done: topic gate (Qwen2.5-3B + LoRA) + retrieval + Qwen3-30B-A3B reader. 0.974 on factual questions, 100% of off-topic refused. See "Question answering (shipped assistant)" |
+| 6. Question answering | `quahog/qa_retrieve.py`, `qa/ask.py`, `evals/qa.py`, `qa/build_qa.py`, `qa/build_lora_data.py`, `configs/lora_qa.yaml`, `qa/build_gate_data.py`, `configs/lora_gate.yaml`, `evals/guard.py` | done: topic gate (Qwen2.5-3B + LoRA) + retrieval + Qwen3-30B-A3B reader. 0.987 on factual questions, 100% of off-topic refused, casual typing handled. See "Question answering (shipped assistant)" |
 | 7. Question answering from scratch | `qa/quahog_qa.py`, `qa/train_quahog_qa.py`, `pretrain/train.py` (v8) | done: QuahogGPT v8 pretrained here + QA fine-tune, 0.673 on the QA test. See "Question answering from scratch" |
 
-Latest commit: see `git log` (web app with follow-ups and cited sources).
+Latest commit: see `git log` (casual input: lowercase/typo linking, gate v3).
 
 ## Repository layout
 
@@ -121,7 +121,8 @@ Results on the 385 test questions (`evals/qa.py`; correct = the answer contains 
 | Qwen2.5-7B-Instruct, no adapter, topic-policy prompt, no gate | 0.984 ± 0.006 | `logs/eval/qa_Qwen2.5-7B.jsonl` |
 | Qwen3-30B-A3B-Instruct-2507, no adapter, topic-policy prompt, no gate | 0.984 ± 0.006 | `logs/eval/qa_Qwen3-30B.jsonl` |
 | gate + Qwen3-30B-A3B, before citations | 0.974 ± 0.008 | earlier `logs/eval/qa_final.jsonl` (overwritten) |
-| **Shipped: gate + Qwen3-30B-A3B, citations** | **0.979 ± 0.007** | `logs/eval/qa_final.jsonl` (`QA.answer` strips the `[n]` markers before scoring). The 4 gate refusals include 3 test questions that are not about Family Guy (e.g. "Which character did David Herman play in Office Space?") |
+| gate v1 + Qwen3-30B-A3B, citations | 0.979 ± 0.007 | earlier `logs/eval/qa_final.jsonl` (overwritten) |
+| **Shipped: gate v3 (threshold 0.9) + Qwen3-30B-A3B, citations, linked titles in the BM25 query** | **0.987 ± 0.006** | `logs/eval/qa_final.jsonl` (`QA.answer` strips the `[n]` markers before scoring). Gate refusals: 0 (gate v1 refused 4, 3 of them test questions not about Family Guy, e.g. "Which character did David Herman play in Office Space?") |
 
 LoRA vs base, paired on the same questions (both before the linking fix): +0.026 ± 0.012 (16 questions only the LoRA gets right, 6 only base). Base wrote "the excerpts"/"information provided" in 25 answers; the LoRA in none. The LoRA answers "I'm not sure" to questions outside the wiki (e.g. "Who won the 2022 World Cup?").
 
@@ -136,9 +137,10 @@ Goal: answer anything about Family Guy, refuse everything else. Test set `data/q
 | 7B, policy in system prompt only | 0.556 | 0.007 | `logs/eval/guard_Qwen2.5-7B.jsonl` |
 | 30B-A3B, policy in system prompt only | 0.662 | 0.000 | `logs/eval/guard_Qwen3-30B.jsonl` |
 | 30B-A3B as its own ON/OFF gate (prompted) | 0.952 | 0.020; factual allowed 0.943 | not saved (throwaway script) |
-| **Shipped: trained gate + 30B-A3B** | **1.000** | **0.027** (4/149) | `logs/eval/guard_final.jsonl` |
+| trained gate v1 + 30B-A3B | 1.000 | 0.027 (4/149) | earlier `logs/eval/guard_final.jsonl` (overwritten) |
+| **Shipped: gate v3 + 30B-A3B** | **1.000** | **0.000** (0/149) | `logs/eval/guard_final.jsonl` |
 
-Gate (`ask.Gate`): Qwen2.5-3B-Instruct + LoRA trained on `qa/build_gate_data.py` output (1,021 OFF, 3,107 ON from train-page questions; `data/qa/gate/`, gitignored), `configs/lora_gate.yaml` (rank 8, 500 iterations, about 1.5 h). The prompt names the wiki pages the message mentions (`qa_retrieve.link`), so "Who is X?" about someone who appears in the show is ON while their net worth is OFF. Gate alone on test prompts: off-topic refused 248/248, open requests allowed 145/149, factual allowed 381/385. Its misses: "The Simpsons Guy" crossover requests and two questions about how the show handles suicide.
+Gate (`ask.Gate`): Qwen2.5-3B-Instruct + LoRA (`adapters/gate`, gitignored) trained on `qa/build_gate_data.py` output, `configs/lora_gate.yaml` (rank 8, one epoch, about 2.5 h). The prompt names the wiki pages the message mentions (`qa_retrieve.link`), so "Who is X?" about someone who appears in the show is ON while their net worth is OFF. The decision is P(OFF) from the first answer token against `GATE_THRESHOLD` = 0.9. See "Casual input" for the current training data and results; the first version (1,021 OFF, 3,107 ON, clean questions only) is kept locally as `adapters/gate_v1`.
 
 Do not use Qwen3 Instruct-2507 models as the gate base with `mlx_lm lora`: their chat template adds an empty `<think></think>` block to every training target, which the instruct model never produces (initial val loss 13.6); the adapter collapsed to a constant answer.
 
@@ -157,9 +159,33 @@ Multi-turn test (`evals/chat.py`, `data/qa/chat_test.jsonl` from `qa/build_chat_
 | none | 0.125 | 20/20 | `logs/eval/chat_norewrite.jsonl` |
 | 30B rewrites the message | 0.925 | 20/20 | not kept; the model often answered or carried out the request instead of rewriting (wrote the joke, returned the air date) |
 | 30B names the referent only | 0.713 | 20/20 | not kept; same problem |
-| **Shipped: linker carries the subject when the message refers back** | **0.988 ± 0.009** | 20/20 | `logs/eval/chat.jsonl` |
+| linker carries the subject when the message refers back (gate v1) | 0.988 ± 0.009 | 20/20 | earlier `logs/eval/chat.jsonl` (overwritten) |
+| **Shipped: same, gate v3** | **0.994 ± 0.006** | 20/20 | `logs/eval/chat.jsonl` |
 
 Subject form: `(about the Family Guy episode "X")` (kind from the infobox). Gate-only comparison on the 140 on-topic follow-ups: this form 140/140, bare titles 133/140, three linked titles 127/140. Carrying the subject into every question-like follow-up let off-topic ones through (gate refused 227/248 off-topic messages with a subject appended); requiring a reference back fixes it (247/248). Retraining the gate on follow-up-shaped examples was worse (single off-topic refused 233/248) and was dropped. Citations: 160/160 opening answers and 130/140 follow-up answers cite an excerpt.
+
+### Casual input
+
+Users type "who is quagmire", "where is quahog", "Where did Clevand was born", "was Brian adopted". All four were refused: the linker ignored lowercase names (the capital-letter rule that keeps "voice" from linking *The Voice*) and typos, and the gate refused messages that name no page, and "was Brian adopted" even when it did (it confused a character's backstory with a real person's private life). Every earlier test set used clean, capitalized questions, so none of this showed.
+
+Fixes:
+- Linker (`quahog/qa_retrieve.py`): "major" pages (every character page plus the 400 most-linked pages, e.g. Quahog, Glenn Quagmire) may be named in lowercase; misspelled one-word names of major pages are corrected (one edit, two for 7+ letters, Damerau distance), never for real English words (`/usr/share/dict/words`, so "brain" is not Brian). Linked titles also join the BM25 query.
+- Gate training data: casual backstory questions about characters (ON) and real people's private lives (OFF) in `data/qa/gate_extra_train.jsonl` (generated, judge-confirmed); lowercased/typo copies of 40% of on-topic and all off-topic examples; off-topic messages in follow-up form (OFF) and follow-up phrasings (`followups_train.jsonl`) with a subject (ON); off-topic examples repeated to 0.8 of the on-topic count (9,201 examples).
+- Threshold chosen on a separate tuning set (1,048 messages: train-page questions the gate never saw, fresh judge-confirmed off-topic messages, messy copies of both), never on the test sets: the highest P(OFF) cutoff with no off-topic leak there.
+
+Test set `data/qa/messy_test.jsonl` (`qa/build_messy_test.py`, `evals/messy.py`): the 782 test messages lowercased, without `?` and quotes, 40% with a one-letter typo in a name, plus 40 hand-written casual backstory questions (including the four above).
+
+Gate alone (P(OFF) < threshold means allowed):
+
+| gate | messy on-topic allowed | messy off-topic refused | clean factual / open allowed | clean off-topic refused | off-topic follow-ups refused | on-topic follow-ups allowed |
+| --- | --- | --- | --- | --- | --- | --- |
+| v1 (clean data, argmax) | 492/574 (casual 28/40) | 248/248 | 381/385, 145/149 | 248/248 | 247/248 | 140/140 |
+| v2 (+ casual copies, 3:1 ON:OFF) | 574/574 | 240/248 | 385/385, 149/149 | 240/248 | 206/248 | 140/140 |
+| **v3 shipped (balanced, threshold 0.9)** | **571/574** | **248/248** | **385/385, 149/149** | **248/248** | **248/248** | **140/140** |
+
+v2 was confidently wrong on some off-topic messages (P(OFF) < 0.05), so no threshold or mix with v1 fixed it; balancing the classes did.
+
+End to end (`evals/messy.py`, `logs/eval/messy.jsonl`): casual backstory questions answered 39/40 (miss: "what happened to brian in life of brian"), messy factual correct 361/385 = 0.938 ± 0.012 (23 of the 24 misses are wrong answers, mostly typos inside episode titles that the linker cannot correct; 1 refusal), messy open requests answered 148/149, messy off-topic refused 248/248. Retrieval recall@8 on messy factual questions: 0.951 (clean: 0.992).
 
 ## Question answering from scratch (QuahogGPT-QA)
 
